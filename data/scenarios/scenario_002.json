@@ -1,0 +1,44 @@
+{
+  "scenario_id": "scenario_002",
+  "description": "Multiple actions: A role permission granting multiple distinct actions",
+  "users": [
+    {
+      "name": "DeveloperUser"
+    }
+  ],
+  "roles": [
+    {
+      "name": "DevRole",
+      "trust_policy": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": "DeveloperUser"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      },
+      "permissions": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:GetObject",
+            "s3:PutObject",
+            "s3:ListBucket"
+          ],
+          "Resource": "arn:aws:s3:::dev-bucket/*"
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "name": "DevBucket",
+      "type": "s3",
+      "arn": "arn:aws:s3:::dev-bucket"
+    }
+  ]
+}

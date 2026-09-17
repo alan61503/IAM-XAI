@@ -1,0 +1,57 @@
+{
+  "scenario_id": "scenario_004",
+  "description": "Multiple statements: Role permissions and trust policy containing multiple statements",
+  "users": [
+    {
+      "name": "OpsUser"
+    }
+  ],
+  "roles": [
+    {
+      "name": "MultiStatementRole",
+      "trust_policy": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": "OpsUser"
+            },
+            "Action": "sts:AssumeRole"
+          },
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "Service": "ec2.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      },
+      "permissions": [
+        {
+          "Effect": "Allow",
+          "Action": "s3:GetObject",
+          "Resource": "arn:aws:s3:::app-data/*"
+        },
+        {
+          "Effect": "Allow",
+          "Action": "dynamodb:Query",
+          "Resource": "arn:aws:dynamodb:us-east-1:123456789012:table/AppTable"
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "name": "AppDataBucket",
+      "type": "s3",
+      "arn": "arn:aws:s3:::app-data"
+    },
+    {
+      "name": "AppTable",
+      "type": "dynamodb",
+      "arn": "arn:aws:dynamodb:us-east-1:123456789012:table/AppTable"
+    }
+  ]
+}

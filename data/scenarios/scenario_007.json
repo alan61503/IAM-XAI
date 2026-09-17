@@ -1,0 +1,47 @@
+{
+  "scenario_id": "scenario_007",
+  "description": "Multiple principals: Trust policy containing multiple principals across AWS and Service",
+  "users": [
+    {
+      "name": "UserAlpha"
+    },
+    {
+      "name": "UserBeta"
+    }
+  ],
+  "roles": [
+    {
+      "name": "SharedRole",
+      "trust_policy": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": [
+                "UserAlpha",
+                "UserBeta"
+              ],
+              "Service": "lambda.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      },
+      "permissions": [
+        {
+          "Effect": "Allow",
+          "Action": "sqs:ReceiveMessage",
+          "Resource": "arn:aws:sqs:us-east-1:123456789012:TaskQueue"
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "name": "TaskQueue",
+      "type": "sqs",
+      "arn": "arn:aws:sqs:us-east-1:123456789012:TaskQueue"
+    }
+  ]
+}

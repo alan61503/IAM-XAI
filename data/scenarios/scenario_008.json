@@ -1,0 +1,50 @@
+{
+  "scenario_id": "scenario_008",
+  "description": "Conditions: Trust policy and permissions containing structured IAM conditions",
+  "users": [
+    {
+      "name": "SecuredUser"
+    }
+  ],
+  "roles": [
+    {
+      "name": "SecuredRole",
+      "trust_policy": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": "SecuredUser"
+            },
+            "Action": "sts:AssumeRole",
+            "Condition": {
+              "Bool": {
+                "aws:MultiFactorAuthPresent": "true"
+              }
+            }
+          }
+        ]
+      },
+      "permissions": [
+        {
+          "Effect": "Allow",
+          "Action": "secretsmanager:GetSecretValue",
+          "Resource": "arn:aws:secretsmanager:us-east-1:123456789012:secret:db-creds",
+          "Condition": {
+            "IpAddress": {
+              "aws:SourceIp": "10.0.0.0/16"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "name": "DatabaseCredentials",
+      "type": "secretsmanager",
+      "arn": "arn:aws:secretsmanager:us-east-1:123456789012:secret:db-creds"
+    }
+  ]
+}

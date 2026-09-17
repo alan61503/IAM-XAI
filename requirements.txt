@@ -1,0 +1,3 @@
+# Phase 1 relies purely on Python Standard Library.
+# pytest is optional for running tests; python's built-in unittest can also be used.
+pytest>=7.0.0

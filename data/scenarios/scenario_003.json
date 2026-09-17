@@ -1,0 +1,54 @@
+{
+  "scenario_id": "scenario_003",
+  "description": "Multiple resources: A single permission statement targeting multiple resources",
+  "users": [
+    {
+      "name": "AuditUser"
+    }
+  ],
+  "roles": [
+    {
+      "name": "AuditorRole",
+      "trust_policy": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": "AuditUser"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      },
+      "permissions": [
+        {
+          "Effect": "Allow",
+          "Action": "s3:GetObject",
+          "Resource": [
+            "arn:aws:s3:::finance-bucket/*",
+            "arn:aws:s3:::hr-bucket/*",
+            "arn:aws:s3:::compliance-bucket/*"
+          ]
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "name": "FinanceBucket",
+      "type": "s3",
+      "arn": "arn:aws:s3:::finance-bucket"
+    },
+    {
+      "name": "HRBucket",
+      "type": "s3",
+      "arn": "arn:aws:s3:::hr-bucket"
+    },
+    {
+      "name": "ComplianceBucket",
+      "type": "s3",
+      "arn": "arn:aws:s3:::compliance-bucket"
+    }
+  ]
+}

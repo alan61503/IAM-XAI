@@ -1,0 +1,45 @@
+{
+  "scenario_id": "scenario_005",
+  "description": "Deny effect: IAM role containing both Allow and explicit Deny permission statements",
+  "users": [
+    {
+      "name": "RestrictedUser"
+    }
+  ],
+  "roles": [
+    {
+      "name": "RestrictedRole",
+      "trust_policy": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": "RestrictedUser"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      },
+      "permissions": [
+        {
+          "Effect": "Allow",
+          "Action": "s3:*",
+          "Resource": "arn:aws:s3:::general-bucket/*"
+        },
+        {
+          "Effect": "Deny",
+          "Action": "s3:DeleteObject",
+          "Resource": "arn:aws:s3:::general-bucket/protected/*"
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "name": "GeneralBucket",
+      "type": "s3",
+      "arn": "arn:aws:s3:::general-bucket"
+    }
+  ]
+}

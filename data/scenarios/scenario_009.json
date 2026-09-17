@@ -1,0 +1,67 @@
+{
+  "scenario_id": "scenario_009",
+  "description": "Role chaining: User -> RoleA and RoleA -> RoleB trust relationships",
+  "users": [
+    {
+      "name": "InitialUser"
+    }
+  ],
+  "roles": [
+    {
+      "name": "IntermediateRoleA",
+      "trust_policy": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": "InitialUser"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      },
+      "permissions": [
+        {
+          "Effect": "Allow",
+          "Action": "sts:AssumeRole",
+          "Resource": "arn:aws:iam::123456789012:role/TargetRoleB"
+        }
+      ]
+    },
+    {
+      "name": "TargetRoleB",
+      "trust_policy": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": "IntermediateRoleA"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      },
+      "permissions": [
+        {
+          "Effect": "Allow",
+          "Action": "s3:GetObject",
+          "Resource": "arn:aws:s3:::critical-production-data/*"
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "name": "TargetRoleB",
+      "type": "role",
+      "arn": "arn:aws:iam::123456789012:role/TargetRoleB"
+    },
+    {
+      "name": "ProductionDataBucket",
+      "type": "s3",
+      "arn": "arn:aws:s3:::critical-production-data"
+    }
+  ]
+}

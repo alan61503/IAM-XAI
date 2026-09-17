@@ -1,0 +1,40 @@
+{
+  "scenario_id": "scenario_001",
+  "description": "Basic IAM configuration: One user, one role, one trust relationship, one permission",
+  "users": [
+    {
+      "name": "UserA"
+    }
+  ],
+  "roles": [
+    {
+      "name": "RoleA",
+      "trust_policy": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": "UserA"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      },
+      "permissions": [
+        {
+          "Effect": "Allow",
+          "Action": "s3:GetObject",
+          "Resource": "arn:aws:s3:::example-bucket/*"
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "name": "ExampleBucket",
+      "type": "s3",
+      "arn": "arn:aws:s3:::example-bucket"
+    }
+  ]
+}

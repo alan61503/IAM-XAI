@@ -1,0 +1,45 @@
+{
+  "scenario_id": "scenario_006",
+  "description": "Wildcards: Full wildcard and service prefix wildcard actions and resources",
+  "users": [
+    {
+      "name": "SuperUser"
+    }
+  ],
+  "roles": [
+    {
+      "name": "AdminRole",
+      "trust_policy": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": {
+              "AWS": "*"
+            },
+            "Action": "sts:AssumeRole"
+          }
+        ]
+      },
+      "permissions": [
+        {
+          "Effect": "Allow",
+          "Action": "*",
+          "Resource": "*"
+        },
+        {
+          "Effect": "Allow",
+          "Action": "s3:*",
+          "Resource": "arn:aws:s3:::*"
+        }
+      ]
+    }
+  ],
+  "resources": [
+    {
+      "name": "AllResources",
+      "type": "all",
+      "arn": "*"
+    }
+  ]
+}
