@@ -6,7 +6,7 @@
 
 **Owner:** Team IAM-XAI
 
-**Current Milestone:** Phase 5 → Phase 7
+**Current Milestone:** Phase 8 (Choke Point Detection) — Phases 5-7 complete
 
 **Repository Purpose:** Simulate AWS IAM environments outside AWS and build an Explainable AI system capable of identifying, scoring, and explaining IAM privilege escalation attack paths.
 
@@ -113,9 +113,9 @@ iam-xai/
 | Phase 2 | ✅ Complete | Attack graph |
 | Phase 3 | ✅ Complete | Attack paths |
 | Phase 4 | ✅ Complete | Feature vectors |
-| Phase 5 | 🚧 Current | Synthetic research dataset |
-| Phase 6 | 🚧 Current | Risk prediction model |
-| Phase 7 | 🚧 Current | SHAP explanations |
+| Phase 5 | ✅ Complete | Synthetic research dataset |
+| Phase 6 | ✅ Complete | Risk prediction model |
+| Phase 7 | ✅ Complete | SHAP explanations |
 | Phase 8 | Planned | Choke point detection |
 | Phase 9 | Planned | Remediation engine |
 | Phase 10 | Planned | Dashboard |
@@ -702,28 +702,28 @@ Python 3.11+
 
 ## Phase 5 — Dataset
 
-- [ ] Synthetic IAM generator implemented.
-- [ ] Scenario library created.
-- [ ] Automatic risk labeling implemented.
-- [ ] Dataset exported to CSV.
-- [ ] Dataset statistics generated.
+- [x] Synthetic IAM generator implemented.
+- [x] Scenario library created.
+- [x] Automatic risk labeling implemented.
+- [x] Dataset exported to CSV.
+- [x] Dataset statistics generated.
 
 ## Phase 6 — ML
 
-- [ ] Preprocessing pipeline completed.
-- [ ] Logistic Regression trained.
-- [ ] Random Forest trained.
-- [ ] XGBoost trained.
-- [ ] Evaluation metrics generated.
-- [ ] Best model saved.
+- [x] Preprocessing pipeline completed.
+- [x] Logistic Regression trained.
+- [x] Random Forest trained.
+- [x] XGBoost trained. (wired in and auto-included whenever its native library loads; gracefully skipped otherwise)
+- [x] Evaluation metrics generated.
+- [x] Best model saved.
 
 ## Phase 7 — SHAP
 
-- [ ] TreeExplainer implemented.
-- [ ] Local explanation generated.
-- [ ] Global explanation generated.
-- [ ] SHAP plots exported.
-- [ ] Explanation JSON exported.
+- [x] TreeExplainer implemented.
+- [x] Local explanation generated.
+- [x] Global explanation generated.
+- [x] SHAP plots exported.
+- [x] Explanation JSON exported.
 
 ---
 
@@ -737,16 +737,18 @@ Future phases consume SHAP outputs.
 
 **Phase 10** visualizes attack graphs, risk scores, SHAP explanations, choke points, and remediation in an interactive dashboard.
 
-No code for these phases should be introduced before Phase 7 is fully functional.
+Phase 7 is now fully functional, so Phase 8 is unblocked. No code for Phase 9 or 10 should be introduced before Phase 8 is fully functional.
 
 ---
 
-# Definition of Done (Current Milestone)
+# Definition of Done (Phase 5-7 — Complete)
 
-The research engine is considered complete through Phase 7 when:
+The research engine is complete through Phase 7:
 
-- A synthetic IAM environment can be generated.
-- Attack paths are automatically labeled with ground-truth risk.
-- A machine learning model predicts the risk category of unseen attack paths.
-- SHAP explains every prediction with feature-level attribution.
-- All outputs are reproducible and exported for evaluation and inclusion in the research paper.
+- [x] A synthetic IAM environment can be generated.
+- [x] Attack paths are automatically labeled with ground-truth risk.
+- [x] A machine learning model predicts the risk category of unseen attack paths.
+- [x] SHAP explains every prediction with feature-level attribution.
+- [x] All outputs are reproducible and exported for evaluation and inclusion in the research paper.
+
+See `README.md` for how each phase works, its CLI commands, and expected output.
