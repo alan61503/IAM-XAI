@@ -9,10 +9,13 @@ This project implements an end-to-end framework for analyzing, modeling, and exp
 - **Phase 1: IAM Configuration Parsing and Normalization** (Completed)
 - **Phase 2: Attack Graph Construction** (Completed)
 - **Phase 3: Attack Path Traversal & Detection** (Completed)
-- **Phase 4: Path Feature Extraction** (Future)
-- **Phase 5: Machine Learning Risk Assessment** (Future)
-- **Phase 6: Explainable AI (XAI / SHAP)** (Future)
-- **Phase 7: Remediation Engine & Verification** (Future)
+- **Phase 4: Path Feature Extraction** (Completed)
+- **Phase 5: Synthetic Dataset Generation** (Completed)
+- **Phase 6: Machine Learning Risk Assessment** (Completed)
+- **Phase 7: Explainable AI (XAI / SHAP)** (Completed)
+- **Phase 8: Choke Point Detection** (Planned)
+- **Phase 9: Remediation Engine** (Planned)
+- **Phase 10: Interactive Dashboard** (Planned)
 
 ---
 
@@ -87,7 +90,7 @@ Matches permission resource patterns to known graph nodes without requiring live
 ### 6. Handling of Conditions
 
 - Conditions (e.g., `aws:MultiFactorAuthPresent`, `aws:SourceIp`) are retained verbatim in the edge's `conditions` dictionary.
-- Conditions are not evaluated during Phase 2; they are preserved as first-class edge metadata for path feature extraction (Phase 4) and explanation (Phase 6).
+- Conditions are not evaluated during Phase 2; they are preserved as first-class edge metadata for path feature extraction (Phase 4) and explanation (Phase 7).
 
 ### 7. Serialization Format
 
@@ -218,7 +221,139 @@ Paths can be filtered without re-running traversal:
 
 ---
 
+## Phase 4: Path Feature Extraction
+
+Phase 4 converts each Phase 3 attack path into a flat, deterministic feature vector consumed by everything downstream (Phase 5's labeling rules, Phase 6's models, Phase 7's SHAP explanations).
+
+### 1. Feature Categories (`features/feature_schema.py`)
+
+`FEATURE_NAMES` fixes a canonical, ordered list of ~45 features grouped into: path structure (`hop_count`, `role_count`, `user_count`, ...), edge-type counts (`assume_count`, `has_passrole`, ...), permission breadth (`wildcard_action_count`, `has_wildcard_resource`, ...), trust/principal features (`external_principal_count`, `has_wildcard_principal`, ...), condition features, effect counts, target metadata (`target_sensitive`, `target_criticality`), and composition ratios (`role_hop_ratio`, `assume_ratio`, ...).
+
+### 2. Extraction (`features/feature_extractor.py`)
+
+`extract_features(path: dict) -> dict` takes one Phase 3 path dict and returns `{"scenario_id", "path_id", "source", "target", "features": {...}}`, where `features` matches `FEATURE_NAMES` exactly. Trust-principal features (`external_principal_count`, etc.) read `edge["metadata"]["principal_type"]`, which `graph_builder.py` tags as `"internal"`, `"service"`, `"external"`, or `"wildcard"` on every `CAN_ASSUME` edge.
+
+### Phase 4 CLI
+```bash
+python -m features.main output/scenario_009_paths.json --output output/scenario_009_features.json
+python -m features.main output/scenario_009_paths.json --format csv --output output/scenario_009_features.csv
+```
+
+---
+
+## Phase 5: Synthetic Dataset Generation
+
+Phase 5 generates a large, labeled dataset of attack paths for ML training, since real AWS IAM configurations aren't used in this project. It runs the full Phase 1→4 pipeline in-process (no file round-trips) over synthetic, randomly generated IAM scenarios.
+
+### 1. Scenario Library (`dataset/scenario_library.py`)
+
+Nine deterministic scenario templates, one per attack pattern: `read_only` (LOW), `wildcard_s3` (MEDIUM), `pass_role_escalation`, `assume_role_chain`, `long_chain` (HIGH), `external_trust_critical`, `policy_modification`, `cross_account_wildcard`, `admin_wildcard` (CRITICAL). Each is built from small composable pieces in `dataset/entity_factory.py` (random user/role/resource names, trust statements, permission statements) and returns `(raw_scenario, meta)`, where `meta` records which resources are sensitive and which roles need to be probed as explicit `iam:PassRole` targets (since `iam:PassRole` alone never reaches an auto-discovered resource target -- see `path/traversal_policy.py`).
+
+### 2. Orchestration (`dataset/generator.py`)
+
+For each of `--count` scenarios: pick a scenario type (weighted so the four risk labels come out roughly even), build it, and run it through `parser.normalizer` → `graph.graph_builder` → `path.path_finder` → `features.feature_extractor`, assembling one labeled row per discovered attack path. Deterministic for a fixed `--seed` (default `42`, matching CLAUDE.md's `random_state = 42`).
+
+### 3. Ground-Truth Labeling (`dataset/label_generator.py`)
+
+A pure function `classify(row) -> (risk_label, risk_score, attack_type, risk_cause)`. Priority order is CRITICAL → HIGH → MEDIUM → LOW: CRITICAL for `admin_permission`, `external_trust`, `cross_account`, `policy_modification`, or (`wildcard_action` **and** `sensitive_target`); HIGH for `pass_role`, an `assume_role` chain (`role_count >= 2`), a long path (`path_length >= 4`), or a sensitive target reached; MEDIUM for any wildcard; otherwise LOW.
+
+### 4. Dataset Schema (`dataset/schema.py`)
+
+```
+scenario_id, path_id, source_identity, target_resource, path_length, role_count,
+user_count, assume_role, pass_role, wildcard_action, wildcard_resource,
+policy_modification, external_trust, cross_account, sensitive_target,
+admin_permission, risk_label, risk_score, attack_type, risk_cause
+```
+
+### Phase 5 CLI
+```bash
+python -m dataset.main --count 5000 --seed 42 --output data/processed/iam_attack_dataset.csv
+```
+
+---
+
+## Phase 6: Machine Learning Risk Assessment
+
+Phase 6 trains supervised classifiers on the Phase 5 dataset to predict `risk_label` for unseen attack paths.
+
+### 1. Preprocessing (`models/preprocess.py`)
+
+Loads the CSV, derives `target_type` from the `target_resource` node-id prefix (`user:`/`role:`/`resource:`), one-hot encodes `attack_type`/`target_type`, and splits 70/15/15 (train/val/test), stratified on `risk_label`, `random_state = 42`.
+
+### 2. Training (`models/train.py`)
+
+Trains Logistic Regression and Random Forest (scikit-learn) plus XGBoost when its native library is importable in the current environment; each model is saved to `models/<name>.pkl` via `joblib`, along with `models/feature_columns.pkl` (the exact column order needed for inference).
+
+### 3. Evaluation (`models/evaluate.py`)
+
+Computes accuracy, weighted precision/recall/F1, weighted ROC-AUC, a confusion matrix, a full classification report, and (for Random Forest) feature importances -- written to `evaluation/model_metrics.json`.
+
+### Phase 6 CLI
+```bash
+python -m models.train --input data/processed/iam_attack_dataset.csv
+python -m models.predict --path-id <path_id from the CSV>
+```
+
+Example `predict` output:
+```json
+{
+  "path_id": "synthetic_00005_path_001",
+  "predicted_label": "CRITICAL",
+  "predicted_score": 1.0,
+  "confidence": 0.9971
+}
+```
+
+---
+
+## Phase 7: Explainable AI Using SHAP
+
+Phase 7 explains every Random Forest prediction with per-feature SHAP contributions.
+
+### 1. Explainer (`explainability/shap_explainer.py`)
+
+Wraps `shap.TreeExplainer` around the saved Random Forest -- Random Forest is the designated explainability model (CLAUDE.md section 6.3); tree ensembles need no background dataset.
+
+### 2. Local Explanations (`explainability/explain_prediction.py`)
+
+`explain_path(path_id)` returns the top 6 SHAP contributors for that path's predicted class:
+```json
+{
+  "path_id": "synthetic_00005_path_001",
+  "prediction": "CRITICAL",
+  "top_factors": [
+    {"feature": "policy_modification", "impact": 0.1059},
+    {"feature": "role_count", "impact": 0.0839}
+  ]
+}
+```
+
+### 3. Plots (`explainability/visualize.py`)
+
+Global summary and feature-importance bar plots (averaged across all four risk classes), plus local waterfall/force/decision plots for one path -- all saved under `evaluation/shap/`.
+
+### Phase 7 CLI
+```bash
+python -m explainability.export_explanation --path-id <path_id>
+python -m explainability.export_explanation --all --output evaluation/shap/explanations.json
+```
+
+### What Phases 5-7 Do Not Do
+
+- Detect attacks in progress, or analyze live logs/CloudTrail (this is a posture-assessment tool: it scores latent risk in a *given* IAM configuration, not runtime activity)
+- Map a prediction's top SHAP factor back onto a specific graph edge as a single "choke point" (Phase 8, planned)
+- Generate plain-language remediation text (Phase 9, planned)
+- Provide any visual dashboard (Phase 10, planned)
+
+---
+
 ## Running the Project
+
+### Setup
+```bash
+pip3 install --user -r requirements.txt
+```
 
 ### Phase 1 Parser CLI
 ```bash
@@ -246,6 +381,27 @@ python -m path.main output/scenario_009_graph.json \
 python -m path.main output/scenario_009_graph.json --min-hops 2 --output output/scenario_009_multihop_paths.json
 ```
 
+### Phase 4 Feature Extraction CLI
+```bash
+python -m features.main output/scenario_009_paths.json --output output/scenario_009_features.json
+```
+
+### Phase 5 Dataset Generation CLI
+```bash
+python -m dataset.main --count 5000 --output data/processed/iam_attack_dataset.csv
+```
+
+### Phase 6 Model Training & Prediction CLI
+```bash
+python -m models.train --input data/processed/iam_attack_dataset.csv
+python -m models.predict --path-id <path_id from the CSV>
+```
+
+### Phase 7 Explainability CLI
+```bash
+python -m explainability.export_explanation --path-id <path_id>
+```
+
 ### Running Automated Tests
 ```bash
 python -m unittest discover -s tests -p "test_*.py" -v
@@ -266,4 +422,4 @@ Phase 3 **DOES NOT**:
 - Connect to AWS live accounts or APIs
 - Provide a web frontend or GUI
 
-All risk assessment, feature extraction, ML training, and XAI explanations belong to Phase 4 and beyond.
+Risk assessment, feature extraction, ML training, and XAI explanations are Phases 4-7 (all now complete, documented above). Choke-point detection, remediation, and dashboarding are Phases 8-10, planned but not yet implemented.

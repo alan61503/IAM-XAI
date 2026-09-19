@@ -1,0 +1,30 @@
+{
+  "path_id": "synthetic_00010_path_001",
+  "prediction": "MEDIUM",
+  "top_factors": [
+    {
+      "feature": "wildcard_resource",
+      "impact": 0.2146
+    },
+    {
+      "feature": "wildcard_action",
+      "impact": 0.2024
+    },
+    {
+      "feature": "attack_type_Data Access",
+      "impact": 0.1262
+    },
+    {
+      "feature": "attack_type_Lateral Movement",
+      "impact": 0.057
+    },
+    {
+      "feature": "role_count",
+      "impact": 0.0414
+    },
+    {
+      "feature": "admin_permission",
+      "impact": 0.0287
+    }
+  ]
+}
