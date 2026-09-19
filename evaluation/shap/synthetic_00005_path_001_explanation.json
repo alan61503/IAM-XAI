@@ -1,0 +1,30 @@
+{
+  "path_id": "synthetic_00005_path_001",
+  "prediction": "CRITICAL",
+  "top_factors": [
+    {
+      "feature": "attack_type_Data Access",
+      "impact": 0.2875
+    },
+    {
+      "feature": "attack_type_Privilege Escalation",
+      "impact": 0.1922
+    },
+    {
+      "feature": "policy_modification",
+      "impact": 0.1059
+    },
+    {
+      "feature": "role_count",
+      "impact": 0.0839
+    },
+    {
+      "feature": "attack_type_Lateral Movement",
+      "impact": 0.0582
+    },
+    {
+      "feature": "external_trust",
+      "impact": -0.0285
+    }
+  ]
+}

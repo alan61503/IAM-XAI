@@ -1,0 +1,181 @@
+{
+  "logistic_regression": {
+    "accuracy": 1.0,
+    "precision_weighted": 1.0,
+    "recall_weighted": 1.0,
+    "f1_weighted": 1.0,
+    "roc_auc_weighted": 1.0,
+    "confusion_matrix": {
+      "labels": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ],
+      "matrix": [
+        [
+          191,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          177,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          187,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          195
+        ]
+      ]
+    },
+    "classification_report": {
+      "LOW": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 191.0
+      },
+      "MEDIUM": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 177.0
+      },
+      "HIGH": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 187.0
+      },
+      "CRITICAL": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 195.0
+      },
+      "accuracy": 1.0,
+      "macro avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 750.0
+      },
+      "weighted avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 750.0
+      }
+    }
+  },
+  "random_forest": {
+    "accuracy": 1.0,
+    "precision_weighted": 1.0,
+    "recall_weighted": 1.0,
+    "f1_weighted": 1.0,
+    "roc_auc_weighted": 1.0,
+    "confusion_matrix": {
+      "labels": [
+        "LOW",
+        "MEDIUM",
+        "HIGH",
+        "CRITICAL"
+      ],
+      "matrix": [
+        [
+          191,
+          0,
+          0,
+          0
+        ],
+        [
+          0,
+          177,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          187,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          195
+        ]
+      ]
+    },
+    "classification_report": {
+      "LOW": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 191.0
+      },
+      "MEDIUM": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 177.0
+      },
+      "HIGH": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 187.0
+      },
+      "CRITICAL": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 195.0
+      },
+      "accuracy": 1.0,
+      "macro avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 750.0
+      },
+      "weighted avg": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1-score": 1.0,
+        "support": 750.0
+      }
+    },
+    "feature_importance": {
+      "attack_type_Data Access": 0.15262020375315438,
+      "wildcard_resource": 0.14934062261465114,
+      "wildcard_action": 0.1436964559200752,
+      "role_count": 0.1283919147204015,
+      "attack_type_Lateral Movement": 0.09291315762882675,
+      "external_trust": 0.08476651247394854,
+      "sensitive_target": 0.061715144201461826,
+      "attack_type_Privilege Escalation": 0.05377805642370765,
+      "path_length": 0.030176576313898938,
+      "admin_permission": 0.029404976516660367,
+      "cross_account": 0.024190078275598825,
+      "policy_modification": 0.022244185152078506,
+      "pass_role": 0.012436501705049735,
+      "target_type_role": 0.007469463004081901,
+      "target_type_resource": 0.006856151296404656,
+      "user_count": 0.0,
+      "assume_role": 0.0
+    }
+  }
+}

@@ -379,6 +379,37 @@ class TestGraphBuilder(unittest.TestCase):
         self.assertTrue(synth_node.metadata.get("synthetic"))
         self.assertEqual(synth_node.metadata.get("source"), "permission_resource")
 
+    def test_trust_principal_type_classification(self):
+        """CAN_ASSUME edges must be tagged with principal_type for Phase 4 trust features."""
+        normalized = {
+            "scenario_id": "principal_type_test",
+            "entities": [
+                {"type": "user", "name": "InternalUser"},
+                {"type": "role", "name": "InternalRole"},
+                {"type": "role", "name": "ServiceTrustedRole"},
+                {"type": "role", "name": "ExternalTrustedRole"},
+                {"type": "role", "name": "WildcardTrustedRole"},
+            ],
+            "permissions": [],
+            "trust_relationships": [
+                {"source": "InternalUser", "target": "InternalRole", "effect": "Allow", "actions": ["sts:AssumeRole"]},
+                {"source": "ec2.amazonaws.com", "target": "ServiceTrustedRole", "effect": "Allow", "actions": ["sts:AssumeRole"]},
+                {"source": "111122223333", "target": "ExternalTrustedRole", "effect": "Allow", "actions": ["sts:AssumeRole"]},
+                {"source": "*", "target": "WildcardTrustedRole", "effect": "Allow", "actions": ["sts:AssumeRole"]},
+            ],
+        }
+        graph = self.builder.build_graph(normalized)
+
+        def principal_type_for(target: str) -> str:
+            edges = graph.get_edges(target=target, edge_type=EDGE_TYPE_ASSUME)
+            self.assertEqual(len(edges), 1)
+            return edges[0].metadata.get("principal_type")
+
+        self.assertEqual(principal_type_for("role:InternalRole"), "internal")
+        self.assertEqual(principal_type_for("role:ServiceTrustedRole"), "service")
+        self.assertEqual(principal_type_for("role:ExternalTrustedRole"), "external")
+        self.assertEqual(principal_type_for("role:WildcardTrustedRole"), "wildcard")
+
 
 if __name__ == "__main__":
     unittest.main()

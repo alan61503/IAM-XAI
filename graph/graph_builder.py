@@ -80,6 +80,20 @@ class GraphBuilder:
             )
         return graph.get_node(node_id)
 
+    def _classify_principal_type(self, node: Node) -> str:
+        """Classify a resolved trust-policy principal node for downstream feature extraction.
+
+        Returns one of: "wildcard", "service", "external", "internal".
+        """
+        if node.metadata.get("source") == "trust_policy_wildcard":
+            return "wildcard"
+        if node.type == "service":
+            return "service"
+        if node.metadata.get("source") == "trust_policy_principal":
+            # Not declared among the scenario's own users/roles/groups -> external principal.
+            return "external"
+        return "internal"
+
     def _resolve_source_node(
         self, graph: DirectedAttackGraph, source_name: str
     ) -> Node:
@@ -166,7 +180,10 @@ class GraphBuilder:
                     )
                 )
 
-            edge_metadata: Dict[str, Any] = {"origin": "trust_policy"}
+            edge_metadata: Dict[str, Any] = {
+                "origin": "trust_policy",
+                "principal_type": self._classify_principal_type(source_node),
+            }
             trust_actions = rel.get("actions", ["sts:AssumeRole"])
             if "*" in trust_actions:
                 edge_metadata["action_scope"] = "wildcard"
