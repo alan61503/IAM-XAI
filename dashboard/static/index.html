@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IAM-XAI — Explainable AI Cloud Privilege Risk Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-logo">
+          <span class="shield-pulse">🛡️</span>
+        </div>
+        <div>
+          <div class="brand-title-wrap">
+            <h1>IAM-XAI</h1>
+            <span class="v-badge">v1.0 Production</span>
+          </div>
+          <p class="subtitle">Explainable AI Framework for Cloud Identity Risk & Privilege Escalation Analysis</p>
+        </div>
+      </div>
+
+      <div class="header-status">
+        <div class="status-indicator">
+          <span class="pulse-dot"></span>
+          <span>Engine Status: <strong>Online</strong></span>
+        </div>
+        <div class="header-controls">
+          <select id="scenarioSelect" class="select-input" aria-label="Select Built-in Scenario">
+            <option value="">Loading Scenarios...</option>
+          </select>
+          <label class="btn btn-glass">
+            📁 Load Custom JSON
+            <input type="file" id="fileInput" accept=".json" style="display: none;">
+          </label>
+          <button id="btnAnalyze" class="btn btn-primary">⚡ Analyze Risk</button>
+          <button id="btnRemediate" class="btn btn-success" disabled>🪄 1-Click Remediate</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Posture Executive Banner -->
+    <section id="executiveBanner" class="executive-banner card">
+      <div class="banner-main">
+        <div class="banner-title-row">
+          <span id="scenarioTag" class="scenario-tag">SCENARIO: NONE</span>
+          <h2 id="scenarioDesc">Select or upload an IAM scenario configuration to evaluate risk posture.</h2>
+        </div>
+        <div class="banner-stats">
+          <div class="banner-stat">
+            <span class="banner-label">Overall Scenario Posture</span>
+            <div id="statRiskBadge" class="badge badge-neutral">UNANALYZED</div>
+          </div>
+          <div class="banner-stat">
+            <span class="banner-label">Active Attack Paths</span>
+            <span id="statPaths" class="stat-value highlight-red">0</span>
+          </div>
+          <div class="banner-stat">
+            <span class="banner-label">Graph Nodes / Edges</span>
+            <span class="stat-value"><span id="statNodes">0</span> / <span id="statEdges">0</span></span>
+          </div>
+          <div class="banner-stat">
+            <span class="banner-label">Choke Points Identified</span>
+            <span id="statChokePoints" class="stat-value highlight-yellow">0</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Workspace Split Grid -->
+    <main class="workspace-grid">
+      <!-- Left Column: Attack Graph & Path Explorer -->
+      <div class="grid-column">
+        <!-- Attack Graph Panel -->
+        <div class="panel card">
+          <div class="panel-header">
+            <div>
+              <h2>🕸️ Interactive Attack Graph Visualization</h2>
+              <span class="subtext">Click nodes to inspect identities & permissions</span>
+            </div>
+            <div class="graph-legend">
+              <span class="legend-item"><span class="node-dot user-dot"></span> User</span>
+              <span class="legend-item"><span class="node-dot role-dot"></span> Role</span>
+              <span class="legend-item"><span class="node-dot resource-dot"></span> Resource</span>
+              <span class="legend-item"><span class="edge-pulse-sample"></span> Choke Point Edge</span>
+            </div>
+          </div>
+
+          <div class="graph-container">
+            <svg id="graphSvg" width="100%" height="450"></svg>
+            <div id="graphEmptyState" class="empty-state">
+              <div class="empty-icon">📊</div>
+              <p>Select a scenario or upload JSON to construct the directed attack graph.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attack Paths Explorer -->
+        <div class="panel card">
+          <div class="panel-header">
+            <div>
+              <h2>🎯 Discovered Attack Paths (<span id="pathCountText">0</span>)</h2>
+              <span class="subtext">Select a path to highlight its hops on the graph canvas</span>
+            </div>
+            <div class="filter-pills">
+              <button class="filter-btn active" data-filter="ALL">All</button>
+              <button class="filter-btn" data-filter="CRITICAL">Critical</button>
+              <button class="filter-btn" data-filter="HIGH">High</button>
+              <button class="filter-btn" data-filter="MEDIUM">Medium</button>
+            </div>
+          </div>
+          <div id="pathsList" class="paths-list">
+            <p class="placeholder-text">No attack paths loaded.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: XAI SHAP & Remediation Studio -->
+      <div class="grid-column">
+        <!-- SHAP Feature Attribution Panel -->
+        <div class="panel card">
+          <div class="panel-header">
+            <div>
+              <h2>🧠 Explainable AI (SHAP) Attribution</h2>
+              <span class="subtext">Feature contribution scores driving model risk prediction</span>
+            </div>
+            <span id="selectedPathIdText" class="badge badge-outline">Select Path</span>
+          </div>
+          <div class="shap-content">
+            <div id="shapChart" class="shap-chart">
+              <p class="placeholder-text">Select an attack path from the left panel to view SHAP factor attributions.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Choke Point & Policy Remediation Hub -->
+        <div class="panel card">
+          <div class="panel-header">
+            <h2>✂️ Choke Points & Remediation Studio</h2>
+            <div class="tab-buttons">
+              <button id="tabChoke" class="tab-btn active">Choke Points</button>
+              <button id="tabDiff" class="tab-btn">Policy Diff</button>
+              <button id="tabPlaybook" class="tab-btn">Playbook</button>
+            </div>
+          </div>
+
+          <div id="tabContentChoke" class="tab-content active">
+            <div id="chokePointsList" class="choke-list">
+              <p class="placeholder-text">Run risk analysis to identify critical bottleneck choke points.</p>
+            </div>
+          </div>
+
+          <div id="tabContentDiff" class="tab-content">
+            <div id="policyDiffViewer" class="diff-viewer">
+              <p class="placeholder-text">No policy diff generated.</p>
+            </div>
+          </div>
+
+          <div id="tabContentPlaybook" class="tab-content">
+            <div class="playbook-toolbar">
+              <button id="btnCopyPlaybook" class="btn btn-sm btn-glass">📋 Copy Playbook</button>
+            </div>
+            <pre id="playbookViewer" class="code-block">No playbook generated yet.</pre>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Node Detail Modal -->
+  <div id="nodeModal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modalNodeTitle">Node Details</h3>
+        <button id="modalCloseBtn" class="modal-close">&times;</button>
+      </div>
+      <div id="modalNodeBody" class="modal-body">
+        <p>Loading node details...</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
