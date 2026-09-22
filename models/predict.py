@@ -12,12 +12,15 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 import joblib
+import numpy as np
 import pandas as pd
 
 from .preprocess import align_features, build_feature_matrix, load_dataset
 
 MODELS_DIR = Path(__file__).resolve().parent
 PRIMARY_MODEL = "random_forest"
+# Severity weight per class, for a probability-weighted expected risk in [0, 1].
+LABEL_SEVERITY = {"LOW": 0.15, "MEDIUM": 0.40, "HIGH": 0.65, "CRITICAL": 0.85}
 MODEL_NAMES = ("random_forest", "logistic_regression", "xgboost")
 
 
@@ -29,29 +32,46 @@ def _load_available_models() -> Dict[str, Any]:
     }
 
 
-def predict_row(row: pd.DataFrame, models: Dict[str, Any], feature_columns: List[str]) -> Dict[str, Any]:
-    """Predict a risk label for one dataset row.
+def predict_frame(rows: pd.DataFrame, models: Dict[str, Any], feature_columns: List[str]) -> List[Dict[str, Any]]:
+    """Predict risk labels for every dataset row in one batch per model.
 
     ``predicted_score`` is the primary model's (Random Forest's) probability for
     the predicted label; ``confidence`` is that same label's average probability
-    across every trained model, i.e. how much the models agree.
+    across every trained model, i.e. how much the models agree; ``expected_risk``
+    is the primary model's probability-weighted class severity (a confident
+    LOW prediction has low expected risk, unlike its ``predicted_score``).
     """
-    X = align_features(build_feature_matrix(row), feature_columns)
+    if rows.empty:
+        return []
+    X = align_features(build_feature_matrix(rows), feature_columns)
 
     primary = models.get(PRIMARY_MODEL) or next(iter(models.values()))
-    primary_probs = dict(zip(primary.classes_, primary.predict_proba(X)[0]))
-    predicted_label = max(primary_probs, key=primary_probs.get)
+    primary_proba = primary.predict_proba(X)
+    labels = primary.classes_[primary_proba.argmax(axis=1)]
 
     agreement = []
     for model in models.values():
-        model_probs = dict(zip(model.classes_, model.predict_proba(X)[0]))
-        agreement.append(model_probs.get(predicted_label, 0.0))
+        proba = model.predict_proba(X)
+        column = {label: i for i, label in enumerate(model.classes_)}
+        agreement.append([proba[i, column[label]] if label in column else 0.0 for i, label in enumerate(labels)])
+    confidence = np.mean(agreement, axis=0)
+    severity = np.array([LABEL_SEVERITY[label] for label in primary.classes_])
+    expected_risk = primary_proba @ severity
 
-    return {
-        "predicted_label": predicted_label,
-        "predicted_score": round(float(primary_probs[predicted_label]), 4),
-        "confidence": round(float(sum(agreement) / len(agreement)), 4),
-    }
+    return [
+        {
+            "predicted_label": str(label),
+            "predicted_score": round(float(primary_proba[i].max()), 4),
+            "confidence": round(float(confidence[i]), 4),
+            "expected_risk": round(float(expected_risk[i]), 4),
+        }
+        for i, label in enumerate(labels)
+    ]
+
+
+def predict_row(row: pd.DataFrame, models: Dict[str, Any], feature_columns: List[str]) -> Dict[str, Any]:
+    """Predict a risk label for one dataset row (see ``predict_frame``)."""
+    return predict_frame(row, models, feature_columns)[0]
 
 
 def build_arg_parser() -> argparse.ArgumentParser:

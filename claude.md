@@ -313,35 +313,26 @@ Stretch goal:
 
 ---
 
-# 5.4 Ground Truth Labeling Rules
+# 5.4 Ground Truth Labeling
 
-Risk labels should be deterministic.
+Risk labels are deterministic but must **not** be a rule over the model's own
+feature columns (that makes the ML task circular: v1 of the dataset had only 9
+distinct feature vectors and trivial 1.0 accuracy).
 
-## LOW
+Labels come from a risk oracle (`dataset/label_generator.py`):
+`risk_score = impact × (0.35 + 0.65 × likelihood)`, using generator-side ground
+truth the model only sees partially (true data classification tier vs. an
+imperfect tag, whether a passed role is privileged, the specific mitigating
+conditions on the path). Cut points 0.20 / 0.36 / 0.55 → LOW / MEDIUM / HIGH /
+CRITICAL.
 
-- Read-only permissions.
-- No sensitive target.
-- No escalation.
+The original fixed rules below are kept as the static baseline
+(`models/baselines.py`) that the ML models are compared against:
 
-## MEDIUM
-
-- Wildcard action OR wildcard resource.
-- Limited sensitive access.
-
-## HIGH
-
-- PassRole.
-- AssumeRole chain.
-- Multiple hops.
-- Sensitive target reached.
-
-## CRITICAL
-
-- IAM administrative permissions.
-- External trust.
-- Cross-account escalation.
-- Policy modification permissions.
-- Wildcard + sensitive resource combination.
+- **LOW** — read-only, no sensitive target, no escalation.
+- **MEDIUM** — wildcard action or wildcard resource.
+- **HIGH** — PassRole, AssumeRole chain, 4+ hops, sensitive target reached.
+- **CRITICAL** — IAM admin, external trust, cross-account, policy modification, wildcard + sensitive target.
 
 ---
 
@@ -441,6 +432,10 @@ Recommended:
 - Train — 70%
 - Validation — 15%
 - Test — 15%
+
+Splits are grouped by `scenario_id` (no environment appears in two splits).
+Hyperparameters are selected on validation; report grouped 5-fold CV, the
+static-rule baseline, and leave-one-pattern-out generalization alongside test metrics.
 
 Use a fixed random seed.
 

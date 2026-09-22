@@ -1,0 +1,40 @@
+{
+  "schema_version": "2.0",
+  "seed": 42,
+  "scenarios": 3000,
+  "attack_paths": 76479,
+  "unique_feature_vectors": 2068,
+  "label_distribution": {
+    "LOW": 20049,
+    "MEDIUM": 21929,
+    "HIGH": 19598,
+    "CRITICAL": 14903
+  },
+  "attack_type_distribution": {
+    "Data Access": 58816,
+    "Lateral Movement": 15005,
+    "Privilege Escalation": 2658
+  },
+  "target_classification_distribution": {
+    "internal": 24996,
+    "confidential": 21416,
+    "restricted": 15441,
+    "public": 13643,
+    "privileged_role": 618,
+    "service_role": 365
+  },
+  "scenarios_per_injected_pattern": {
+    "pass_role": 728,
+    "wildcard_action": 721,
+    "assume_chain": 716,
+    "wildcard_resource": 696,
+    "policy_modification": 528,
+    "cross_account": 512,
+    "external_trust": 489,
+    "none": 319,
+    "wildcard_trust": 250,
+    "admin_wildcard": 245
+  },
+  "max_paths_per_scenario": 30,
+  "label_noise": 0.0
+}

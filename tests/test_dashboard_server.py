@@ -67,6 +67,22 @@ class TestDashboardServer(unittest.TestCase):
         self.assertIn("scenarios", data)
         conn.close()
 
+    def test_analysis_uses_real_shap_explanations(self):
+        result = analyze_scenario_end_to_end(self.sample_scenario)
+        self.assertEqual(len(result["predictions"]), result["total_paths"])
+        for exp in result["explanations"]:
+            self.assertNotIn("assume_role_chain", [f["feature"] for f in exp["top_factors"]])
+
+    def test_scenario_id_path_traversal_is_rejected(self):
+        if not self.server:
+            self.skipTest("HTTPServer binding restricted in sandbox")
+        conn = HTTPConnection("127.0.0.1", self.server.server_port)
+        conn.request("GET", "/api/scenario/../../evaluation/model_metrics")
+        res = conn.getresponse()
+        self.assertEqual(res.status, 400)
+        res.read()
+        conn.close()
+
     def test_post_analyze_api(self):
         if not self.server:
             self.skipTest("HTTPServer binding restricted in sandbox")

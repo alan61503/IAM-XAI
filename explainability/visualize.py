@@ -16,7 +16,14 @@ import shap
 
 from models.preprocess import align_features, build_feature_matrix, load_dataset
 
-from .shap_explainer import base_value_for_class, build_explainer, load_feature_columns, load_random_forest, shap_values_for_class
+from .shap_explainer import (
+    base_value_for_class,
+    build_explainer,
+    load_feature_columns,
+    load_random_forest,
+    shap_values_all_classes,
+    shap_values_for_class,
+)
 
 OUTPUT_DIR = Path(__file__).resolve().parent.parent / "evaluation" / "shap"
 
@@ -39,8 +46,7 @@ def generate_global_plots(dataset_path: str = "data/processed/iam_attack_dataset
     X = align_features(build_feature_matrix(sample), feature_columns)
 
     explainer = build_explainer(model)
-    raw = explainer.shap_values(X)
-    combined = sum(abs(raw[..., i]) for i in range(len(model.classes_))) / len(model.classes_)
+    combined = abs(shap_values_all_classes(explainer, X)).mean(axis=-1)
 
     shap.summary_plot(combined, X, show=False)
     _save("summary_plot.png")

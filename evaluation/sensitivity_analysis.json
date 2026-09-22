@@ -1,0 +1,582 @@
+{
+  "environments_per_variant": 1500,
+  "perturbation": 0.2,
+  "variants": {
+    "default": {
+      "rows": 38023,
+      "label_distribution": {
+        "LOW": 0.266,
+        "MEDIUM": 0.285,
+        "HIGH": 0.256,
+        "CRITICAL": 0.193
+      },
+      "label_ambiguity_ceiling": 0.8897,
+      "models": {
+        "logistic_regression": {
+          "accuracy": 0.7422,
+          "f1_macro": 0.7548,
+          "severe_miss_rate": 0.1491
+        },
+        "random_forest": {
+          "accuracy": 0.8742,
+          "f1_macro": 0.8748,
+          "severe_miss_rate": 0.0911
+        },
+        "random_forest+escalation_floor": {
+          "accuracy": 0.8742,
+          "f1_macro": 0.8748,
+          "severe_miss_rate": 0.0911
+        },
+        "rule_based_baseline": {
+          "accuracy": 0.4245,
+          "f1_macro": 0.3781,
+          "severe_miss_rate": 0.1305
+        }
+      },
+      "oracle": {
+        "tier_impact": [
+          0.1,
+          0.3,
+          0.6,
+          0.85
+        ],
+        "admin_impact": 0.95,
+        "policy_modification_impact": 0.9,
+        "privileged_pass_role_impact": 0.9,
+        "unprivileged_pass_role_impact": 0.35,
+        "write_access_bonus": 0.1,
+        "exposure": {
+          "wildcard": 1.0,
+          "external": 0.9,
+          "internal": 0.6
+        },
+        "hop_decay": 0.9,
+        "mitigation_factor": {
+          "mfa": 0.45,
+          "source_ip": 0.6,
+          "external_id": 0.65
+        },
+        "likelihood_floor": 0.35,
+        "thresholds": [
+          [
+            "LOW",
+            0.2
+          ],
+          [
+            "MEDIUM",
+            0.36
+          ],
+          [
+            "HIGH",
+            0.55
+          ]
+        ]
+      },
+      "label_noise": 0.0
+    },
+    "label_noise_5pct": {
+      "rows": 38023,
+      "label_distribution": {
+        "LOW": 0.259,
+        "MEDIUM": 0.291,
+        "HIGH": 0.261,
+        "CRITICAL": 0.189
+      },
+      "label_ambiguity_ceiling": 0.8477,
+      "models": {
+        "logistic_regression": {
+          "accuracy": 0.7173,
+          "f1_macro": 0.73,
+          "severe_miss_rate": 0.1577
+        },
+        "random_forest": {
+          "accuracy": 0.8317,
+          "f1_macro": 0.8338,
+          "severe_miss_rate": 0.109
+        },
+        "random_forest+escalation_floor": {
+          "accuracy": 0.8317,
+          "f1_macro": 0.8338,
+          "severe_miss_rate": 0.109
+        },
+        "rule_based_baseline": {
+          "accuracy": 0.417,
+          "f1_macro": 0.3702,
+          "severe_miss_rate": 0.1416
+        }
+      },
+      "oracle": {
+        "tier_impact": [
+          0.1,
+          0.3,
+          0.6,
+          0.85
+        ],
+        "admin_impact": 0.95,
+        "policy_modification_impact": 0.9,
+        "privileged_pass_role_impact": 0.9,
+        "unprivileged_pass_role_impact": 0.35,
+        "write_access_bonus": 0.1,
+        "exposure": {
+          "wildcard": 1.0,
+          "external": 0.9,
+          "internal": 0.6
+        },
+        "hop_decay": 0.9,
+        "mitigation_factor": {
+          "mfa": 0.45,
+          "source_ip": 0.6,
+          "external_id": 0.65
+        },
+        "likelihood_floor": 0.35,
+        "thresholds": [
+          [
+            "LOW",
+            0.2
+          ],
+          [
+            "MEDIUM",
+            0.36
+          ],
+          [
+            "HIGH",
+            0.55
+          ]
+        ]
+      },
+      "label_noise": 0.05
+    },
+    "label_noise_10pct": {
+      "rows": 38023,
+      "label_distribution": {
+        "LOW": 0.252,
+        "MEDIUM": 0.296,
+        "HIGH": 0.265,
+        "CRITICAL": 0.186
+      },
+      "label_ambiguity_ceiling": 0.807,
+      "models": {
+        "logistic_regression": {
+          "accuracy": 0.6939,
+          "f1_macro": 0.7051,
+          "severe_miss_rate": 0.1538
+        },
+        "random_forest": {
+          "accuracy": 0.7849,
+          "f1_macro": 0.7881,
+          "severe_miss_rate": 0.1247
+        },
+        "random_forest+escalation_floor": {
+          "accuracy": 0.7849,
+          "f1_macro": 0.7881,
+          "severe_miss_rate": 0.1247
+        },
+        "rule_based_baseline": {
+          "accuracy": 0.4137,
+          "f1_macro": 0.3661,
+          "severe_miss_rate": 0.1491
+        }
+      },
+      "oracle": {
+        "tier_impact": [
+          0.1,
+          0.3,
+          0.6,
+          0.85
+        ],
+        "admin_impact": 0.95,
+        "policy_modification_impact": 0.9,
+        "privileged_pass_role_impact": 0.9,
+        "unprivileged_pass_role_impact": 0.35,
+        "write_access_bonus": 0.1,
+        "exposure": {
+          "wildcard": 1.0,
+          "external": 0.9,
+          "internal": 0.6
+        },
+        "hop_decay": 0.9,
+        "mitigation_factor": {
+          "mfa": 0.45,
+          "source_ip": 0.6,
+          "external_id": 0.65
+        },
+        "likelihood_floor": 0.35,
+        "thresholds": [
+          [
+            "LOW",
+            0.2
+          ],
+          [
+            "MEDIUM",
+            0.36
+          ],
+          [
+            "HIGH",
+            0.55
+          ]
+        ]
+      },
+      "label_noise": 0.1
+    },
+    "weights_perturbed_a": {
+      "rows": 38023,
+      "label_distribution": {
+        "LOW": 0.243,
+        "MEDIUM": 0.3,
+        "HIGH": 0.253,
+        "CRITICAL": 0.205
+      },
+      "label_ambiguity_ceiling": 0.8967,
+      "models": {
+        "logistic_regression": {
+          "accuracy": 0.764,
+          "f1_macro": 0.7748,
+          "severe_miss_rate": 0.1347
+        },
+        "random_forest": {
+          "accuracy": 0.8846,
+          "f1_macro": 0.8863,
+          "severe_miss_rate": 0.0722
+        },
+        "random_forest+escalation_floor": {
+          "accuracy": 0.8846,
+          "f1_macro": 0.8863,
+          "severe_miss_rate": 0.0722
+        },
+        "rule_based_baseline": {
+          "accuracy": 0.423,
+          "f1_macro": 0.378,
+          "severe_miss_rate": 0.1363
+        }
+      },
+      "oracle": {
+        "tier_impact": [
+          0.08537456976449606,
+          0.3416920484324679,
+          0.6633059085543873,
+          0.7667234687514034
+        ],
+        "admin_impact": 0.9482653330949375,
+        "policy_modification_impact": 0.8818167833239458,
+        "privileged_pass_role_impact": 0.9545734701801946,
+        "unprivileged_pass_role_impact": 0.3904212691589718,
+        "write_access_bonus": 0.1,
+        "exposure": {
+          "wildcard": 0.837543834709694,
+          "external": 0.7302050915479223,
+          "internal": 0.6805836249407686
+        },
+        "hop_decay": 0.8757961444458192,
+        "mitigation_factor": {
+          "mfa": 0.49721041484242956,
+          "source_ip": 0.4805054528042666,
+          "external_id": 0.6358006704542484
+        },
+        "likelihood_floor": 0.35,
+        "thresholds": [
+          [
+            "LOW",
+            0.2
+          ],
+          [
+            "MEDIUM",
+            0.36
+          ],
+          [
+            "HIGH",
+            0.55
+          ]
+        ]
+      },
+      "label_noise": 0.0
+    },
+    "weights_perturbed_b": {
+      "rows": 38023,
+      "label_distribution": {
+        "LOW": 0.26,
+        "MEDIUM": 0.443,
+        "HIGH": 0.248,
+        "CRITICAL": 0.049
+      },
+      "label_ambiguity_ceiling": 0.9124,
+      "models": {
+        "logistic_regression": {
+          "accuracy": 0.7507,
+          "f1_macro": 0.7956,
+          "severe_miss_rate": 0.2753
+        },
+        "random_forest": {
+          "accuracy": 0.9038,
+          "f1_macro": 0.9183,
+          "severe_miss_rate": 0.1013
+        },
+        "random_forest+escalation_floor": {
+          "accuracy": 0.9029,
+          "f1_macro": 0.9176,
+          "severe_miss_rate": 0.1013
+        },
+        "rule_based_baseline": {
+          "accuracy": 0.4126,
+          "f1_macro": 0.4476,
+          "severe_miss_rate": 0.1261
+        }
+      },
+      "oracle": {
+        "tier_impact": [
+          0.11824137087556999,
+          0.3537392984471219,
+          0.4935723282544341,
+          0.7088564783540334
+        ],
+        "admin_impact": 1.0,
+        "policy_modification_impact": 0.9849491960646682,
+        "privileged_pass_role_impact": 0.9611029445184794,
+        "unprivileged_pass_role_impact": 0.32313910406248014,
+        "write_access_bonus": 0.1,
+        "exposure": {
+          "wildcard": 1.0,
+          "external": 0.9384486241107016,
+          "internal": 0.6194889641068807
+        },
+        "hop_decay": 0.7770178332917301,
+        "mitigation_factor": {
+          "mfa": 0.43752053525242834,
+          "source_ip": 0.5744476368492891,
+          "external_id": 0.7079831411217411
+        },
+        "likelihood_floor": 0.35,
+        "thresholds": [
+          [
+            "LOW",
+            0.2
+          ],
+          [
+            "MEDIUM",
+            0.36
+          ],
+          [
+            "HIGH",
+            0.55
+          ]
+        ]
+      },
+      "label_noise": 0.0
+    },
+    "weights_perturbed_c": {
+      "rows": 38023,
+      "label_distribution": {
+        "LOW": 0.243,
+        "MEDIUM": 0.3,
+        "HIGH": 0.257,
+        "CRITICAL": 0.199
+      },
+      "label_ambiguity_ceiling": 0.888,
+      "models": {
+        "logistic_regression": {
+          "accuracy": 0.736,
+          "f1_macro": 0.7474,
+          "severe_miss_rate": 0.1438
+        },
+        "random_forest": {
+          "accuracy": 0.8701,
+          "f1_macro": 0.8713,
+          "severe_miss_rate": 0.0865
+        },
+        "random_forest+escalation_floor": {
+          "accuracy": 0.8701,
+          "f1_macro": 0.8713,
+          "severe_miss_rate": 0.0865
+        },
+        "rule_based_baseline": {
+          "accuracy": 0.4296,
+          "f1_macro": 0.3893,
+          "severe_miss_rate": 0.1313
+        }
+      },
+      "oracle": {
+        "tier_impact": [
+          0.08951858508367566,
+          0.30530750703551424,
+          0.568789239971539,
+          0.8853328131227062
+        ],
+        "admin_impact": 0.9977737155610604,
+        "policy_modification_impact": 0.7435903893263328,
+        "privileged_pass_role_impact": 0.7247404769597547,
+        "unprivileged_pass_role_impact": 0.39724567149350437,
+        "write_access_bonus": 0.1,
+        "exposure": {
+          "wildcard": 0.9037416057312031,
+          "external": 0.8043591459768107,
+          "internal": 0.718954760522511
+        },
+        "hop_decay": 0.8892948627080813,
+        "mitigation_factor": {
+          "mfa": 0.51056306122939,
+          "source_ip": 0.5943247700878403,
+          "external_id": 0.686157716541482
+        },
+        "likelihood_floor": 0.35,
+        "thresholds": [
+          [
+            "LOW",
+            0.2
+          ],
+          [
+            "MEDIUM",
+            0.36
+          ],
+          [
+            "HIGH",
+            0.55
+          ]
+        ]
+      },
+      "label_noise": 0.0
+    },
+    "thresholds_minus_10pct": {
+      "rows": 38023,
+      "label_distribution": {
+        "LOW": 0.243,
+        "MEDIUM": 0.29,
+        "HIGH": 0.267,
+        "CRITICAL": 0.2
+      },
+      "label_ambiguity_ceiling": 0.8785,
+      "models": {
+        "logistic_regression": {
+          "accuracy": 0.7608,
+          "f1_macro": 0.7697,
+          "severe_miss_rate": 0.122
+        },
+        "random_forest": {
+          "accuracy": 0.8606,
+          "f1_macro": 0.8625,
+          "severe_miss_rate": 0.1
+        },
+        "random_forest+escalation_floor": {
+          "accuracy": 0.8606,
+          "f1_macro": 0.8625,
+          "severe_miss_rate": 0.1
+        },
+        "rule_based_baseline": {
+          "accuracy": 0.436,
+          "f1_macro": 0.3877,
+          "severe_miss_rate": 0.1338
+        }
+      },
+      "oracle": {
+        "tier_impact": [
+          0.1,
+          0.3,
+          0.6,
+          0.85
+        ],
+        "admin_impact": 0.95,
+        "policy_modification_impact": 0.9,
+        "privileged_pass_role_impact": 0.9,
+        "unprivileged_pass_role_impact": 0.35,
+        "write_access_bonus": 0.1,
+        "exposure": {
+          "wildcard": 1.0,
+          "external": 0.9,
+          "internal": 0.6
+        },
+        "hop_decay": 0.9,
+        "mitigation_factor": {
+          "mfa": 0.45,
+          "source_ip": 0.6,
+          "external_id": 0.65
+        },
+        "likelihood_floor": 0.35,
+        "thresholds": [
+          [
+            "LOW",
+            0.18
+          ],
+          [
+            "MEDIUM",
+            0.324
+          ],
+          [
+            "HIGH",
+            0.495
+          ]
+        ]
+      },
+      "label_noise": 0.0
+    },
+    "thresholds_plus_10pct": {
+      "rows": 38023,
+      "label_distribution": {
+        "LOW": 0.384,
+        "MEDIUM": 0.186,
+        "HIGH": 0.33,
+        "CRITICAL": 0.1
+      },
+      "label_ambiguity_ceiling": 0.9202,
+      "models": {
+        "logistic_regression": {
+          "accuracy": 0.7864,
+          "f1_macro": 0.7695,
+          "severe_miss_rate": 0.1548
+        },
+        "random_forest": {
+          "accuracy": 0.908,
+          "f1_macro": 0.9051,
+          "severe_miss_rate": 0.0939
+        },
+        "random_forest+escalation_floor": {
+          "accuracy": 0.908,
+          "f1_macro": 0.9051,
+          "severe_miss_rate": 0.0939
+        },
+        "rule_based_baseline": {
+          "accuracy": 0.5402,
+          "f1_macro": 0.453,
+          "severe_miss_rate": 0.1345
+        }
+      },
+      "oracle": {
+        "tier_impact": [
+          0.1,
+          0.3,
+          0.6,
+          0.85
+        ],
+        "admin_impact": 0.95,
+        "policy_modification_impact": 0.9,
+        "privileged_pass_role_impact": 0.9,
+        "unprivileged_pass_role_impact": 0.35,
+        "write_access_bonus": 0.1,
+        "exposure": {
+          "wildcard": 1.0,
+          "external": 0.9,
+          "internal": 0.6
+        },
+        "hop_decay": 0.9,
+        "mitigation_factor": {
+          "mfa": 0.45,
+          "source_ip": 0.6,
+          "external_id": 0.65
+        },
+        "likelihood_floor": 0.35,
+        "thresholds": [
+          [
+            "LOW",
+            0.22
+          ],
+          [
+            "MEDIUM",
+            0.396
+          ],
+          [
+            "HIGH",
+            0.605
+          ]
+        ]
+      },
+      "label_noise": 0.0
+    }
+  }
+}

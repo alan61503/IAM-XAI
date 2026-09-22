@@ -78,6 +78,7 @@ class DirectedAttackGraph:
         self._nodes: Dict[str, Node] = {}
         self._edges: List[Edge] = []
         self._edge_keys: set = set()
+        self._out_edges: Dict[str, List[Edge]] = {}
 
     @property
     def nodes(self) -> Dict[str, Node]:
@@ -122,7 +123,12 @@ class DirectedAttackGraph:
 
         self._edge_keys.add(key)
         self._edges.append(edge)
+        self._out_edges.setdefault(edge.source, []).append(edge)
         return True
+
+    def outgoing(self, source: str) -> List[Edge]:
+        """Edges leaving ``source`` (O(1) lookup via the adjacency index)."""
+        return self._out_edges.get(source, [])
 
     def get_edges(
         self,
@@ -133,7 +139,8 @@ class DirectedAttackGraph:
     ) -> List[Edge]:
         """Query edges by optional filters."""
         results = []
-        for edge in self._edges:
+        candidates = self._out_edges.get(source, []) if source is not None else self._edges
+        for edge in candidates:
             if source is not None and edge.source != source:
                 continue
             if target is not None and edge.target != target:

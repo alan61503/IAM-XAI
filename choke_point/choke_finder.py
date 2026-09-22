@@ -5,27 +5,66 @@ to identify critical bottleneck permissions (choke points) that, if severed, max
 security risk reduction.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from collections import Counter
+from typing import Any, Callable, Dict, List, Optional, Sequence, Set
 
-FEATURE_EDGE_MAP = {
-    "assume_role": lambda edge: edge.get("edge_type") == "CAN_ASSUME",
-    "assume_count": lambda edge: edge.get("edge_type") == "CAN_ASSUME",
-    "assume_ratio": lambda edge: edge.get("edge_type") == "CAN_ASSUME",
-    "role_count": lambda edge: edge.get("edge_type") == "CAN_ASSUME",
-    "pass_role": lambda edge: edge.get("edge_type") == "CAN_PASS_ROLE",
-    "has_passrole": lambda edge: edge.get("edge_type") == "CAN_PASS_ROLE",
-    "wildcard_action": lambda edge: any("*" in act for act in edge.get("actions", [])) or edge.get("metadata", {}).get("broad_permission", False),
-    "wildcard_resource": lambda edge: any("*" in res for res in edge.get("resources", [])),
-    "policy_modification": lambda edge: any(
-        act.lower() in [
-            "iam:putrolepolicy", "iam:attachrolepolicy", "iam:createpolicyversion",
-            "iam:setdefaultpolicyversion", "iam:putuserpolicy", "iam:putgrouppolicy"
-        ] or "policy" in act.lower() for act in edge.get("actions", [])
-    ),
-    "external_trust": lambda edge: edge.get("edge_type") == "CAN_ASSUME" and edge.get("metadata", {}).get("principal_type") == "external",
-    "cross_account": lambda edge: edge.get("metadata", {}).get("cross_account", False),
-    "sensitive_target": lambda edge: edge.get("edge_type") in ("CAN_ACCESS", "CAN_MODIFY"),
+from dataset.path_signals import has_cross_account, is_policy_modification_action
+
+EdgeMatcher = Callable[[Dict[str, Any]], bool]
+
+
+def _edge_type(*types: str) -> EdgeMatcher:
+    return lambda edge: edge.get("edge_type") in types
+
+
+def _principal_type(kind: str) -> EdgeMatcher:
+    return lambda edge: edge.get("edge_type") == "CAN_ASSUME" and edge.get("metadata", {}).get("principal_type") == kind
+
+
+def _any_action(predicate: Callable[[str], bool]) -> EdgeMatcher:
+    return lambda edge: any(predicate(act) for act in edge.get("actions", []))
+
+
+_wildcard_action = lambda edge: any("*" in act for act in edge.get("actions", [])) or edge.get("metadata", {}).get("broad_permission", False)
+_wildcard_resource = lambda edge: any("*" in res for res in edge.get("resources", []))
+_reaches_data = _edge_type("CAN_ACCESS", "CAN_MODIFY")
+_has_conditions = lambda edge: bool(edge.get("conditions"))
+
+# Model feature (as named in models/feature_columns.pkl) -> which path edges carry it.
+FEATURE_EDGE_MAP: Dict[str, EdgeMatcher] = {
+    "assume_role": _edge_type("CAN_ASSUME"),
+    "role_count": _edge_type("CAN_ASSUME"),
+    "path_length": _edge_type("CAN_ASSUME"),
+    "pass_role": _edge_type("CAN_PASS_ROLE"),
+    "wildcard_action": _wildcard_action,
+    "wildcard_action_count": _wildcard_action,
+    "broad_permission_edge_count": _wildcard_action,
+    "wildcard_resource": _wildcard_resource,
+    "wildcard_resource_count": _wildcard_resource,
+    "policy_modification": _any_action(is_policy_modification_action),
+    "admin_permission": _any_action(lambda act: act == "*" or act.lower() == "iam:*"),
+    "external_trust": _principal_type("external"),
+    "wildcard_principal": _principal_type("wildcard"),
+    "cross_account": lambda edge: bool(has_cross_account([edge])),
+    "write_access": _edge_type("CAN_MODIFY"),
+    "sensitive_target": _reaches_data,
+    "classification_tag": _reaches_data,
+    "action_count": _reaches_data,
+    "has_conditions": _has_conditions,
+    "conditional_edge_count": _has_conditions,
+    "condition_key_count": _has_conditions,
 }
+
+
+# Fallback severity when a prediction carries no expected_risk (e.g. rule-based labels).
+_LABEL_SEVERITY = {"LOW": 0.15, "MEDIUM": 0.40, "HIGH": 0.65, "CRITICAL": 0.85}
+
+
+def _path_risk(pred: Dict[str, Any]) -> float:
+    """Severity-weighted risk of one path from its prediction dict."""
+    if pred.get("expected_risk") is not None:
+        return float(pred["expected_risk"])
+    return _LABEL_SEVERITY.get(pred.get("predicted_label"), 0.4)
 
 
 def _edge_key(edge: Dict[str, Any]) -> str:
@@ -136,7 +175,7 @@ def identify_scenario_choke_points(
         exp = explanation_lookup.get(pid)
         pred = prediction_lookup.get(pid, {})
         
-        risk_score = float(pred.get("predicted_score", 0.5 if pred.get("predicted_label") in ("HIGH", "CRITICAL") else 0.2))
+        risk_score = _path_risk(pred)
         path_choke = identify_path_choke_point(path, exp)
 
         for edge in path.get("edges", []):
@@ -200,3 +239,34 @@ def identify_scenario_choke_points(
     # Sort descending by choke_score
     ranked.sort(key=lambda item: item["choke_score"], reverse=True)
     return ranked
+
+
+def greedy_edge_cut(path_edges: List[Set[str]], weights: Sequence[float], k: int) -> List[str]:
+    """Pick up to ``k`` edge keys, each time the one on the most remaining risk.
+
+    Classic greedy maximum coverage: once a path is cut it stops counting, so
+    later picks target *different* paths instead of re-cutting the same ones.
+    """
+    chosen: List[str] = []
+    alive = set(range(len(path_edges)))
+    for _ in range(k):
+        gain: Counter = Counter()
+        for i in alive:
+            for edge in path_edges[i]:
+                gain[edge] += weights[i]
+        if not gain:
+            break
+        best = max(sorted(gain), key=lambda e: gain[e])
+        chosen.append(best)
+        alive = {i for i in alive if best not in path_edges[i]}
+    return chosen
+
+
+def select_choke_point_set(
+    paths: List[Dict[str, Any]], predictions: Optional[List[Dict[str, Any]]] = None, k: int = 3
+) -> List[str]:
+    """Edge keys of the ``k`` cuts removing the most predicted risk (non-overlapping)."""
+    lookup = {p["path_id"]: p for p in (predictions or []) if "path_id" in p}
+    path_edges = [{_edge_key(e) for e in path.get("edges", [])} for path in paths]
+    weights = [_path_risk(lookup.get(path.get("path_id"), {})) for path in paths]
+    return greedy_edge_cut(path_edges, weights, k)

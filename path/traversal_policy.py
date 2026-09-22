@@ -1,13 +1,23 @@
 """Traversal policy defining valid attacker transitions and path semantics."""
 
-from typing import List
+from fnmatch import fnmatchcase
+from typing import Dict, List, Tuple
+
 from graph.action_mapper import (
     EDGE_TYPE_ACCESS,
     EDGE_TYPE_ASSUME,
     EDGE_TYPE_MODIFY,
     EDGE_TYPE_PASS_ROLE,
 )
-from graph.models import Edge, Node
+from graph.models import DirectedAttackGraph, Edge, Node
+
+# (source, target) -> [(denied action patterns, denied resource patterns), ...]
+DenyIndex = Dict[Tuple[str, str], List[Tuple[List[str], List[str]]]]
+
+
+def _covered(value: str, patterns: List[str]) -> bool:
+    value = value.lower()
+    return any(fnmatchcase(value, p) for p in patterns)
 
 
 class TraversalPolicy:
@@ -22,6 +32,43 @@ class TraversalPolicy:
         if edge.effect.lower() != "allow":
             return False
         return True
+
+    def build_deny_index(self, graph: DirectedAttackGraph) -> DenyIndex:
+        """Index unconditional explicit ``Deny`` edges by (source, target).
+
+        Conditional denies are not indexed: whether they apply depends on
+        request context the graph cannot know, so they are conservatively
+        assumed not to protect the path (attacker-favorable assumption).
+        """
+        index: DenyIndex = {}
+        for edge in graph.edges:
+            if edge.effect.lower() == "deny" and not edge.conditions:
+                entry = ([a.lower() for a in edge.actions], [r.lower() for r in edge.resources])
+                index.setdefault((edge.source, edge.target), []).append(entry)
+        return index
+
+    def is_denied(self, edge: Edge, deny_index: DenyIndex) -> bool:
+        """True when explicit denies remove every action this Allow edge grants.
+
+        Explicit Deny overrides Allow (AWS policy evaluation logic). A deny only
+        counts if it covers all of the Allow edge's resource patterns -- e.g.
+        ``Deny s3:GetObject`` on ``bucket/secret/*`` does not block
+        ``Allow s3:GetObject`` on ``bucket/*``. An action is removed when it
+        matches a denied action pattern (``s3:*`` denies ``s3:GetObject``, but
+        ``Deny s3:DeleteObject`` leaves the rest of ``Allow s3:*`` intact).
+        """
+        entries = deny_index.get((edge.source, edge.target))
+        if not entries:
+            return False
+        denied_actions: List[str] = []
+        for actions, resources in entries:
+            if all(_covered(r, resources) for r in edge.resources):
+                denied_actions.extend(actions)
+        if not denied_actions:
+            return False
+        if not edge.actions:
+            return "*" in denied_actions
+        return all(_covered(a, denied_actions) for a in edge.actions)
 
     def can_pivot_into_node(self, edge: Edge, target_node: Node) -> bool:
         """Determine if an attacker can pivot into target_node to continue traversal.

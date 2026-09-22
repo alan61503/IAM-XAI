@@ -1,0 +1,69 @@
+{
+  "n_paths": 3000,
+  "split": "test (grouped by scenario)",
+  "rankings": {
+    "shap_local": {
+      "cause_recovery_all": {
+        "top1_hit_rate": 0.9533,
+        "cause_recall_at_3": 0.9046,
+        "n": 3000
+      },
+      "cause_recovery_correct_predictions": {
+        "top1_hit_rate": 0.951,
+        "cause_recall_at_3": 0.9018,
+        "n": 2631
+      },
+      "cause_recovery_multi_cause_paths": {
+        "top1_hit_rate": 0.9906,
+        "cause_recall_at_3": 0.7704,
+        "n": 1168
+      },
+      "deletion_probability_drop": {
+        "top_1": 0.3872,
+        "top_3": 0.537
+      }
+    },
+    "global_importance": {
+      "cause_recovery_all": {
+        "top1_hit_rate": 0.9497,
+        "cause_recall_at_3": 0.8452,
+        "n": 3000
+      },
+      "cause_recovery_correct_predictions": {
+        "top1_hit_rate": 0.9426,
+        "cause_recall_at_3": 0.8423,
+        "n": 2631
+      },
+      "cause_recovery_multi_cause_paths": {
+        "top1_hit_rate": 0.9743,
+        "cause_recall_at_3": 0.7059,
+        "n": 1168
+      },
+      "deletion_probability_drop": {
+        "top_1": 0.2992,
+        "top_3": 0.4275
+      }
+    },
+    "random": {
+      "cause_recovery_all": {
+        "top1_hit_rate": 0.2993,
+        "cause_recall_at_3": 0.5285,
+        "n": 3000
+      },
+      "cause_recovery_correct_predictions": {
+        "top1_hit_rate": 0.3029,
+        "cause_recall_at_3": 0.5275,
+        "n": 2631
+      },
+      "cause_recovery_multi_cause_paths": {
+        "top1_hit_rate": 0.3493,
+        "cause_recall_at_3": 0.3841,
+        "n": 1168
+      },
+      "deletion_probability_drop": {
+        "top_1": 0.0208,
+        "top_3": 0.0663
+      }
+    }
+  }
+}

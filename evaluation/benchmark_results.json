@@ -1,0 +1,342 @@
+{
+  "summary": {
+    "random_forest": {
+      "attacks_detected": "18/26",
+      "detection_rate": 0.6923,
+      "false_alarms": "0/6"
+    },
+    "hybrid": {
+      "attacks_detected": "18/26",
+      "detection_rate": 0.6923,
+      "false_alarms": "0/6"
+    },
+    "rules": {
+      "attacks_detected": "18/26",
+      "detection_rate": 0.6923,
+      "false_alarms": "0/6"
+    },
+    "attack_paths_found": "26/26"
+  },
+  "scenarios": [
+    {
+      "id": "R01",
+      "name": "iam:CreatePolicyVersion",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 1,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "CRITICAL"
+    },
+    {
+      "id": "R02",
+      "name": "iam:SetDefaultPolicyVersion",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 1,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "CRITICAL"
+    },
+    {
+      "id": "R03",
+      "name": "iam:PassRole + ec2:RunInstances",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 3,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "HIGH"
+    },
+    {
+      "id": "R04",
+      "name": "iam:CreateAccessKey (other user)",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 1,
+      "random_forest": "MEDIUM",
+      "hybrid": "MEDIUM",
+      "rules": "LOW"
+    },
+    {
+      "id": "R05",
+      "name": "iam:CreateLoginProfile",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 1,
+      "random_forest": "MEDIUM",
+      "hybrid": "MEDIUM",
+      "rules": "LOW"
+    },
+    {
+      "id": "R06",
+      "name": "iam:UpdateLoginProfile",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 1,
+      "random_forest": "MEDIUM",
+      "hybrid": "MEDIUM",
+      "rules": "LOW"
+    },
+    {
+      "id": "R07",
+      "name": "iam:AttachUserPolicy",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 1,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "CRITICAL"
+    },
+    {
+      "id": "R08",
+      "name": "iam:AttachGroupPolicy",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 1,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "CRITICAL"
+    },
+    {
+      "id": "R09",
+      "name": "iam:AttachRolePolicy + sts:AssumeRole",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 1,
+      "random_forest": "MEDIUM",
+      "hybrid": "MEDIUM",
+      "rules": "MEDIUM"
+    },
+    {
+      "id": "R10",
+      "name": "iam:PutUserPolicy",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 1,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "CRITICAL"
+    },
+    {
+      "id": "R11",
+      "name": "iam:PutGroupPolicy",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 1,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "CRITICAL"
+    },
+    {
+      "id": "R12",
+      "name": "iam:PutRolePolicy + sts:AssumeRole",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 1,
+      "random_forest": "MEDIUM",
+      "hybrid": "MEDIUM",
+      "rules": "MEDIUM"
+    },
+    {
+      "id": "R13",
+      "name": "iam:AddUserToGroup",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 1,
+      "random_forest": "MEDIUM",
+      "hybrid": "MEDIUM",
+      "rules": "LOW"
+    },
+    {
+      "id": "R14",
+      "name": "iam:UpdateAssumeRolePolicy + sts:AssumeRole",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 2,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "CRITICAL"
+    },
+    {
+      "id": "R15",
+      "name": "iam:PassRole + lambda:CreateFunction + lambda:InvokeFunction",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 3,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "HIGH"
+    },
+    {
+      "id": "R16",
+      "name": "iam:PassRole + lambda:CreateFunction + lambda:CreateEventSourceMapping",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 3,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "HIGH"
+    },
+    {
+      "id": "R17",
+      "name": "lambda:UpdateFunctionCode (privileged function)",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 1,
+      "random_forest": "MEDIUM",
+      "hybrid": "MEDIUM",
+      "rules": "LOW"
+    },
+    {
+      "id": "R18",
+      "name": "iam:PassRole + glue:CreateDevEndpoint",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 3,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "HIGH"
+    },
+    {
+      "id": "R19",
+      "name": "glue:UpdateDevEndpoint",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 1,
+      "random_forest": "MEDIUM",
+      "hybrid": "MEDIUM",
+      "rules": "MEDIUM"
+    },
+    {
+      "id": "R20",
+      "name": "iam:PassRole + cloudformation:CreateStack",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 3,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "HIGH"
+    },
+    {
+      "id": "R21",
+      "name": "iam:PassRole + datapipeline:CreatePipeline",
+      "expected": "attack",
+      "group": "Rhino IAM privilege escalation",
+      "paths_found": 3,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "HIGH"
+    },
+    {
+      "id": "C01",
+      "name": "Policy version rollback (cf. CloudGoat iam_privesc_by_rollback)",
+      "expected": "attack",
+      "group": "Modelled scenario",
+      "paths_found": 1,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "CRITICAL"
+    },
+    {
+      "id": "C02",
+      "name": "Assume manager role, pass admin role to Lambda (cf. CloudGoat lambda_privesc)",
+      "expected": "attack",
+      "group": "Modelled scenario",
+      "paths_found": 2,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "HIGH"
+    },
+    {
+      "id": "C03",
+      "name": "Pass admin role to an EC2 instance profile (cf. CloudGoat iam_privesc_by_attachment)",
+      "expected": "attack",
+      "group": "Modelled scenario",
+      "paths_found": 3,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "HIGH"
+    },
+    {
+      "id": "C04",
+      "name": "Cross-account trust without ExternalId to restricted data (confused deputy)",
+      "expected": "attack",
+      "group": "Modelled scenario",
+      "paths_found": 1,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "CRITICAL"
+    },
+    {
+      "id": "C05",
+      "name": "Role assumable by any principal, reads restricted bucket",
+      "expected": "attack",
+      "group": "Modelled scenario",
+      "paths_found": 1,
+      "random_forest": "CRITICAL",
+      "hybrid": "CRITICAL",
+      "rules": "HIGH"
+    },
+    {
+      "id": "N01",
+      "name": "MFA-gated role reads public assets",
+      "expected": "benign",
+      "group": "Negative control",
+      "paths_found": 1,
+      "random_forest": "LOW",
+      "hybrid": "LOW",
+      "rules": "LOW"
+    },
+    {
+      "id": "N02",
+      "name": "User reads internal inventory table",
+      "expected": "benign",
+      "group": "Negative control",
+      "paths_found": 1,
+      "random_forest": "MEDIUM",
+      "hybrid": "MEDIUM",
+      "rules": "LOW"
+    },
+    {
+      "id": "N03",
+      "name": "Role reads public Lambda configuration",
+      "expected": "benign",
+      "group": "Negative control",
+      "paths_found": 1,
+      "random_forest": "LOW",
+      "hybrid": "LOW",
+      "rules": "LOW"
+    },
+    {
+      "id": "N04",
+      "name": "Role lists public bucket",
+      "expected": "benign",
+      "group": "Negative control",
+      "paths_found": 1,
+      "random_forest": "LOW",
+      "hybrid": "LOW",
+      "rules": "LOW"
+    },
+    {
+      "id": "N05",
+      "name": "Source-IP restricted role queries internal table",
+      "expected": "benign",
+      "group": "Negative control",
+      "paths_found": 1,
+      "random_forest": "LOW",
+      "hybrid": "LOW",
+      "rules": "LOW"
+    },
+    {
+      "id": "N06",
+      "name": "Write access to public bucket blocked by explicit Deny",
+      "expected": "benign",
+      "group": "Negative control",
+      "paths_found": 1,
+      "random_forest": "LOW",
+      "hybrid": "LOW",
+      "rules": "MEDIUM"
+    }
+  ]
+}

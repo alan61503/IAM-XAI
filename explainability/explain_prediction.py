@@ -2,42 +2,56 @@
 
 Matches the CLAUDE.md section 7.5 export shape:
 ``{"path_id", "prediction", "top_factors": [{"feature", "impact"}, ...]}``.
+
+Attack-path feature vectors repeat heavily (tens of thousands of paths share a
+few thousand distinct vectors), so SHAP is computed once per distinct vector
+and mapped back to every path that shares it.
 """
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
+import numpy as np
 import pandas as pd
 
 from models.preprocess import align_features, build_feature_matrix, load_dataset
 
-from .shap_explainer import build_explainer, load_feature_columns, load_random_forest, shap_values_for_class
+from .shap_explainer import build_explainer, load_feature_columns, load_random_forest, shap_values_all_classes
 
 TOP_N = 6
 
 
-def explain_rows(df: pd.DataFrame, feature_columns: List[str] = None) -> List[Dict[str, Any]]:
-    """Explain every row of ``df`` (must include the raw Phase 5 dataset columns plus ``path_id``)."""
+def explain_rows(
+    df: pd.DataFrame,
+    feature_columns: Optional[List[str]] = None,
+    model: Any = None,
+    top_n: int = TOP_N,
+) -> List[Dict[str, Any]]:
+    """Explain every row of ``df`` (Phase 5 dataset columns plus ``path_id``), in row order."""
+    if df.empty:
+        return []
     df = df.reset_index(drop=True)
-    model = load_random_forest()
+    model = model if model is not None else load_random_forest()
     feature_columns = feature_columns or load_feature_columns()
     X = align_features(build_feature_matrix(df), feature_columns)
-    predictions = model.predict(X)
 
-    explainer = build_explainer(model)
-    results: List[Dict[str, Any]] = []
-    for label in set(predictions):
-        mask = predictions == label
-        contributions = shap_values_for_class(explainer, X.loc[mask], model, label)
-        for path_id, row_contrib in zip(df.loc[mask, "path_id"], contributions):
-            ranked = sorted(zip(feature_columns, row_contrib), key=lambda kv: abs(kv[1]), reverse=True)[:TOP_N]
-            results.append(
-                {
-                    "path_id": path_id,
-                    "prediction": label,
-                    "top_factors": [{"feature": name, "impact": round(float(value), 4)} for name, value in ranked],
-                }
-            )
-    return results
+    keys = pd.util.hash_pandas_object(X, index=False).to_numpy()
+    unique_keys, first_idx, inverse = np.unique(keys, return_index=True, return_inverse=True)
+    X_unique = X.iloc[first_idx]
+
+    predictions = model.predict(X_unique)
+    class_index = {label: i for i, label in enumerate(model.classes_)}
+    contributions = shap_values_all_classes(build_explainer(model), X_unique)
+
+    unique_factors = []
+    for u, label in enumerate(predictions):
+        row_contrib = contributions[u, :, class_index[label]]
+        order = np.argsort(-np.abs(row_contrib))[:top_n]
+        unique_factors.append([{"feature": feature_columns[i], "impact": round(float(row_contrib[i]), 4)} for i in order])
+
+    return [
+        {"path_id": path_id, "prediction": predictions[u], "top_factors": unique_factors[u]}
+        for path_id, u in zip(df["path_id"], inverse)
+    ]
 
 
 def explain_path(path_id: str, dataset_path: str = "data/processed/iam_attack_dataset.csv") -> Dict[str, Any]:

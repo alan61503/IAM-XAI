@@ -22,8 +22,8 @@ def main(argv: List[str] | None = None) -> int:
     parser.add_argument(
         "--host",
         type=str,
-        default="0.0.0.0",
-        help="Host address to bind the server (default: 0.0.0.0)",
+        default="127.0.0.1",
+        help="Host address to bind the server (default: 127.0.0.1; use 0.0.0.0 to expose on the network)",
     )
 
     args = parser.parse_args(argv)

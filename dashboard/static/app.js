@@ -455,7 +455,7 @@ function renderShapChart() {
     row.innerHTML = `
       <div class="bar-meta">
         <span><code>${f.feature}</code></span>
-        <span>+${f.impact.toFixed(4)}</span>
+        <span>${f.impact >= 0 ? '+' : ''}${f.impact.toFixed(4)}</span>
       </div>
       <div class="bar-track">
         <div class="bar-fill" style="width: ${percent}%;"></div>

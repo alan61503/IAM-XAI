@@ -1,0 +1,30 @@
+{
+  "path_id": "synthetic_00000_path_021",
+  "prediction": "MEDIUM",
+  "top_factors": [
+    {
+      "feature": "classification_tag",
+      "impact": 0.2274
+    },
+    {
+      "feature": "conditional_edge_count",
+      "impact": 0.1189
+    },
+    {
+      "feature": "has_conditions",
+      "impact": 0.1021
+    },
+    {
+      "feature": "condition_key_count",
+      "impact": 0.0904
+    },
+    {
+      "feature": "sensitive_target",
+      "impact": 0.0516
+    },
+    {
+      "feature": "wildcard_principal",
+      "impact": 0.0122
+    }
+  ]
+}

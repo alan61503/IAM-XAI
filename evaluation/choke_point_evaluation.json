@@ -1,0 +1,116 @@
+{
+  "scenarios": 200,
+  "attack_paths": 6979,
+  "seed": 2024,
+  "max_paths_per_scenario": 400,
+  "strategies": {
+    "iam_xai": {
+      "k=1": {
+        "mean_fraction_of_risk_eliminated": 0.2581,
+        "mean_fraction_of_severe_paths_eliminated": 0.2802,
+        "risk_gain_vs_path_frequency_95ci": [
+          0.0069,
+          0.0187
+        ]
+      },
+      "k=3": {
+        "mean_fraction_of_risk_eliminated": 0.4657,
+        "mean_fraction_of_severe_paths_eliminated": 0.5013,
+        "risk_gain_vs_path_frequency_95ci": [
+          0.0168,
+          0.038
+        ]
+      }
+    },
+    "iam_xai_without_shap": {
+      "k=1": {
+        "mean_fraction_of_risk_eliminated": 0.26,
+        "mean_fraction_of_severe_paths_eliminated": 0.2809,
+        "risk_gain_vs_path_frequency_95ci": [
+          0.0101,
+          0.0197
+        ]
+      },
+      "k=3": {
+        "mean_fraction_of_risk_eliminated": 0.4666,
+        "mean_fraction_of_severe_paths_eliminated": 0.4946,
+        "risk_gain_vs_path_frequency_95ci": [
+          0.0186,
+          0.0382
+        ]
+      }
+    },
+    "iam_xai_greedy": {
+      "k=1": {
+        "mean_fraction_of_risk_eliminated": 0.2635,
+        "mean_fraction_of_severe_paths_eliminated": 0.2964,
+        "risk_gain_vs_path_frequency_95ci": [
+          0.0132,
+          0.024
+        ]
+      },
+      "k=3": {
+        "mean_fraction_of_risk_eliminated": 0.5233,
+        "mean_fraction_of_severe_paths_eliminated": 0.5973,
+        "risk_gain_vs_path_frequency_95ci": [
+          0.073,
+          0.0966
+        ]
+      }
+    },
+    "path_frequency": {
+      "k=1": {
+        "mean_fraction_of_risk_eliminated": 0.2455,
+        "mean_fraction_of_severe_paths_eliminated": 0.242,
+        "risk_gain_vs_path_frequency_95ci": [
+          0.0,
+          0.0
+        ]
+      },
+      "k=3": {
+        "mean_fraction_of_risk_eliminated": 0.4388,
+        "mean_fraction_of_severe_paths_eliminated": 0.4388,
+        "risk_gain_vs_path_frequency_95ci": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "random": {
+      "k=1": {
+        "mean_fraction_of_risk_eliminated": 0.0716,
+        "mean_fraction_of_severe_paths_eliminated": 0.0649,
+        "risk_gain_vs_path_frequency_95ci": [
+          -0.2011,
+          -0.1496
+        ]
+      },
+      "k=3": {
+        "mean_fraction_of_risk_eliminated": 0.1998,
+        "mean_fraction_of_severe_paths_eliminated": 0.2081,
+        "risk_gain_vs_path_frequency_95ci": [
+          -0.2677,
+          -0.2094
+        ]
+      }
+    },
+    "oracle_greedy": {
+      "k=1": {
+        "mean_fraction_of_risk_eliminated": 0.2666,
+        "mean_fraction_of_severe_paths_eliminated": 0.3067,
+        "risk_gain_vs_path_frequency_95ci": [
+          0.0158,
+          0.0271
+        ]
+      },
+      "k=3": {
+        "mean_fraction_of_risk_eliminated": 0.5272,
+        "mean_fraction_of_severe_paths_eliminated": 0.6131,
+        "risk_gain_vs_path_frequency_95ci": [
+          0.0773,
+          0.1005
+        ]
+      }
+    }
+  }
+}

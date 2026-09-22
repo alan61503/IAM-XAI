@@ -4,7 +4,7 @@ All helpers are deliberately pure and have no side effects – they receive
 plain Python data structures and return deterministic results.
 """
 
-from typing import List, Set, Dict, Any
+from typing import List, Set, Dict, Any, Tuple
 
 def is_wildcard_action(action: str) -> bool:
     """Return True if the action string contains a wildcard.
@@ -42,7 +42,7 @@ def safe_div(numerator: float, denominator: float) -> float:
     return 0.0 if denominator == 0 else numerator / denominator
 
 
-def flatten_conditions(conditions: Dict[str, Any]) -> (Set[str], Set[str]):
+def flatten_conditions(conditions: Dict[str, Any]) -> Tuple[Set[str], Set[str]]:
     """Return two sets: (operators, keys) found in a condition dict.
 
     ``conditions`` follows the IAM style where the outer keys are the

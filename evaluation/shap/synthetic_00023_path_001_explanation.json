@@ -1,0 +1,30 @@
+{
+  "path_id": "synthetic_00023_path_001",
+  "prediction": "CRITICAL",
+  "top_factors": [
+    {
+      "feature": "classification_tag",
+      "impact": 0.338
+    },
+    {
+      "feature": "sensitive_target",
+      "impact": 0.1962
+    },
+    {
+      "feature": "external_trust",
+      "impact": 0.0732
+    },
+    {
+      "feature": "wildcard_action_count",
+      "impact": 0.034
+    },
+    {
+      "feature": "wildcard_action",
+      "impact": 0.0334
+    },
+    {
+      "feature": "broad_permission_edge_count",
+      "impact": 0.0321
+    }
+  ]
+}

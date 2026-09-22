@@ -3,7 +3,7 @@
 from typing import List, Optional, Set
 from graph.models import DirectedAttackGraph, Edge
 from path.models import AttackPath
-from path.traversal_policy import TraversalPolicy
+from path.traversal_policy import DenyIndex, TraversalPolicy
 
 
 class PathFinder:
@@ -54,6 +54,7 @@ class PathFinder:
 
         discovered_paths: List[AttackPath] = []
         path_counter = 1
+        deny_index = self.policy.build_deny_index(graph)
 
         # 3. Perform bounded DFS from each source
         for start_node in sources:
@@ -65,6 +66,7 @@ class PathFinder:
                 current_node_path=[start_node],
                 current_edge_path=[],
                 max_hops=max_hops,
+                deny_index=deny_index,
             )
 
             for node_path, edge_path in paths_from_source:
@@ -99,6 +101,7 @@ class PathFinder:
         current_node_path: List[str],
         current_edge_path: List[Edge],
         max_hops: int,
+        deny_index: Optional[DenyIndex] = None,
     ) -> List[tuple]:
         """Recursive cycle-safe bounded DFS."""
         results: List[tuple] = []
@@ -108,7 +111,7 @@ class PathFinder:
             return results
 
         # Get outbound edges from current_node, sorted deterministically
-        outbound_edges = list(graph.get_edges(source=current_node))
+        outbound_edges = list(graph.outgoing(current_node))
         # If current_node is a user, they can also leverage wildcard trust policies (principal:*)
         if current_node.startswith("user:"):
             for we in graph.get_edges(source="principal:*", edge_type="CAN_ASSUME"):
@@ -131,6 +134,8 @@ class PathFinder:
 
         for edge in sorted_edges:
             if not self.policy.is_traversable_edge(edge):
+                continue
+            if deny_index and self.policy.is_denied(edge, deny_index):
                 continue
 
             next_node_id = edge.target
@@ -159,6 +164,7 @@ class PathFinder:
                     current_node_path=new_node_path,
                     current_edge_path=new_edge_path,
                     max_hops=max_hops,
+                    deny_index=deny_index,
                 )
                 results.extend(sub_results)
 

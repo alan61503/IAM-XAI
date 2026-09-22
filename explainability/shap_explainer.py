@@ -26,18 +26,22 @@ def build_explainer(model: Any) -> shap.TreeExplainer:
     return shap.TreeExplainer(model)
 
 
-def shap_values_for_class(explainer: shap.TreeExplainer, X, model: Any, class_label: str) -> np.ndarray:
-    """Return the (n_samples, n_features) SHAP contribution matrix for one class.
+def shap_values_all_classes(explainer: shap.TreeExplainer, X) -> np.ndarray:
+    """Return an ``(n_samples, n_features, n_classes)`` SHAP array.
 
-    Handles both SHAP output conventions: a ``list`` of per-class arrays
-    (older versions) and a single ``(n_samples, n_features, n_classes)``
-    array (current versions).
+    Normalizes both SHAP output conventions: a ``list`` of per-class arrays
+    (older versions) and a single 3-D array (current versions).
     """
     raw = explainer.shap_values(X)
-    class_index = list(model.classes_).index(class_label)
     if isinstance(raw, list):
-        return raw[class_index]
-    return raw[..., class_index]
+        return np.stack(raw, axis=-1)
+    return raw
+
+
+def shap_values_for_class(explainer: shap.TreeExplainer, X, model: Any, class_label: str) -> np.ndarray:
+    """Return the ``(n_samples, n_features)`` SHAP contribution matrix for one class."""
+    class_index = list(model.classes_).index(class_label)
+    return shap_values_all_classes(explainer, X)[..., class_index]
 
 
 def base_value_for_class(explainer: shap.TreeExplainer, model: Any, class_label: str) -> float:

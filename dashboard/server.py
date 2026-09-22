@@ -5,30 +5,72 @@ executing graph path traversal, ML risk prediction, SHAP explanations, choke poi
 and 1-click policy remediations.
 """
 
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from functools import lru_cache
+from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
 import json
 from pathlib import Path
+import re
 import sys
 import traceback
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple
 
+import joblib
 import pandas as pd
 
 from choke_point.choke_finder import identify_scenario_choke_points
-from features.feature_extractor import extract_features
+from dataset.generator import DEFAULT_MAX_HOPS, discover_paths
+from dataset.row_builder import build_feature_row, context_from_scenario
 from graph.graph_builder import build_attack_graph
-from models.predict import _load_available_models, predict_row
-import joblib
+from models.baselines import predict_rule_based
+from models.predict import PRIMARY_MODEL, _load_available_models, predict_frame
 from parser.normalizer import normalize_scenario
-from path.path_finder import PathFinder
 from path.path_serializer import serialize_paths_to_dict
 from remediation.diff_generator import generate_policy_diff, generate_remediation_playbook
 from remediation.policy_remediator import remediate_choke_point
 from remediation.simulator import verify_remediation
 
+try:
+    from explainability.explain_prediction import explain_rows
+except Exception:  # SHAP (or its numba dependency) unavailable in this environment
+    explain_rows = None
+
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 SCENARIOS_DIR = PROJECT_DIR / "data" / "scenarios"
+FEATURE_COLUMNS_PATH = PROJECT_DIR / "models" / "feature_columns.pkl"
+SCENARIO_ID_RE = re.compile(r"^[A-Za-z0-9_-]+$")
+MAX_BODY_BYTES = 5 * 1024 * 1024
+
+
+@lru_cache(maxsize=1)
+def _load_model_bundle() -> Tuple[Dict[str, Any], Optional[List[str]]]:
+    """Load trained models and their feature columns once per process."""
+    models = _load_available_models()
+    feature_cols = joblib.load(FEATURE_COLUMNS_PATH) if FEATURE_COLUMNS_PATH.exists() else None
+    return models, feature_cols
+
+
+def _predict_and_explain(rows: pd.DataFrame) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """ML predictions plus SHAP explanations; static-rule fallback when no models are trained."""
+    if rows.empty:
+        return [], []
+    models, feature_cols = _load_model_bundle()
+    if not (models and feature_cols):
+        labels = predict_rule_based(rows)
+        predictions = [
+            {"path_id": pid, "predicted_label": label, "predicted_score": None, "confidence": None, "source": "rules"}
+            for pid, label in zip(rows["path_id"], labels)
+        ]
+        return predictions, []
+
+    predictions = [
+        {"path_id": pid, **pred, "source": "ml"}
+        for pid, pred in zip(rows["path_id"], predict_frame(rows, models, feature_cols))
+    ]
+    explanations: List[Dict[str, Any]] = []
+    if explain_rows is not None and PRIMARY_MODEL in models:
+        explanations = explain_rows(rows, feature_columns=feature_cols, model=models[PRIMARY_MODEL])
+    return predictions, explanations
 
 
 def analyze_scenario_end_to_end(raw_scenario: Dict[str, Any]) -> Dict[str, Any]:
@@ -40,69 +82,14 @@ def analyze_scenario_end_to_end(raw_scenario: Dict[str, Any]) -> Dict[str, Any]:
     graph = build_attack_graph(normalized)
     serialized_graph = graph.to_dict()
 
-    # Phase 3: Attack Path Enumeration
-    finder = PathFinder()
-    paths = finder.find_paths(graph, max_hops=5)
-    paths_data = serialize_paths_to_dict(paths, scenario_id=scenario_id)
+    # Phase 3: Attack Path Enumeration (same discovery as the training data, incl. PassRole targets)
+    context = context_from_scenario(raw_scenario)
+    paths = discover_paths(graph, context, max_hops=DEFAULT_MAX_HOPS)
+    paths_data = serialize_paths_to_dict(paths, scenario_id=scenario_id, max_hops=DEFAULT_MAX_HOPS)
 
-    # Load ML models & feature columns
-    models = _load_available_models()
-    models_dir = PROJECT_DIR / "models"
-    feature_cols = joblib.load(models_dir / "feature_columns.pkl") if (models_dir / "feature_columns.pkl").exists() else None
-
-    predictions: List[Dict[str, Any]] = []
-    explanations: List[Dict[str, Any]] = []
-
-    for path in paths_data.get("paths", []):
-        pid = path.get("path_id", "")
-        extracted = extract_features(path)
-        feats = extracted["features"]
-
-        # Flatten into dataset-like row for prediction
-        target_res = path.get("target", "")
-        row_dict = {
-            "scenario_id": scenario_id,
-            "path_id": pid,
-            "source_identity": path.get("source"),
-            "target_resource": target_res,
-            "target_type": target_res.split(":", 1)[0] if ":" in target_res else "resource",
-            "path_length": feats.get("hop_count", 1),
-            "role_count": feats.get("role_count", 0),
-            "user_count": feats.get("user_count", 0),
-            "assume_role": 1 if feats.get("assume_count", 0) > 0 else 0,
-            "pass_role": 1 if feats.get("passrole_count", 0) > 0 else 0,
-            "wildcard_action": 1 if feats.get("wildcard_action_count", 0) > 0 else 0,
-            "wildcard_resource": 1 if feats.get("has_wildcard_resource", False) else 0,
-            "policy_modification": 1 if feats.get("has_policy_modification", False) else 0,
-            "external_trust": 1 if feats.get("external_principal_count", 0) > 0 else 0,
-            "cross_account": 1 if feats.get("has_cross_account", False) else 0,
-            "sensitive_target": 1 if feats.get("target_sensitive", False) else 0,
-            "admin_permission": 1 if feats.get("has_admin_permission", False) else 0,
-            "attack_type": "Privilege Escalation" if feats.get("role_count", 0) > 1 else "Data Access",
-        }
-
-        if models and feature_cols:
-            row_df = pd.DataFrame([row_dict])
-            pred_res = predict_row(row_df, models, feature_cols)
-            pred = {"path_id": pid, **pred_res}
-        else:
-            # Rule-based fallback
-            label = "CRITICAL" if row_dict["admin_permission"] or row_dict["external_trust"] else (
-                "HIGH" if row_dict["assume_role"] or row_dict["sensitive_target"] else "MEDIUM"
-            )
-            pred = {"path_id": pid, "predicted_label": label, "predicted_score": 0.88, "confidence": 0.95}
-
-        predictions.append(pred)
-
-        # Generate local explanation factors
-        factors = [
-            {"feature": "assume_role_chain", "impact": round(feats.get("assume_ratio", 0.5) * 0.3, 4)},
-            {"feature": "wildcard_action", "impact": 0.22 if row_dict["wildcard_action"] else 0.05},
-            {"feature": "sensitive_target", "impact": 0.18 if row_dict["sensitive_target"] else 0.04},
-            {"feature": "external_trust", "impact": 0.25 if row_dict["external_trust"] else 0.01},
-        ]
-        factors.sort(key=lambda item: item["impact"], reverse=True)
-        explanations.append({"path_id": pid, "prediction": pred["predicted_label"], "top_factors": factors})
+    # Phase 4-7: shared feature rows -> ML prediction -> SHAP explanation
+    rows = pd.DataFrame([build_feature_row(path, context) for path in paths_data.get("paths", [])])
+    predictions, explanations = _predict_and_explain(rows)
 
     # Phase 8: Choke Point Detection
     choke_points = identify_scenario_choke_points(paths_data.get("paths", []), explanations, predictions)
@@ -154,7 +141,6 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         self.wfile.write(body)
 
@@ -194,7 +180,9 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
         elif path.startswith("/api/scenario/"):
             scen_id = path.replace("/api/scenario/", "")
             target_file = SCENARIOS_DIR / f"{scen_id}.json"
-            if target_file.exists():
+            if not SCENARIO_ID_RE.match(scen_id):
+                self._send_json({"error": "Invalid scenario id"}, 400)
+            elif target_file.exists():
                 raw = json.loads(target_file.read_text(encoding="utf-8"))
                 result = analyze_scenario_end_to_end(raw)
                 self._send_json(result)
@@ -205,6 +193,9 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         content_len = int(self.headers.get("Content-Length", 0))
+        if content_len > MAX_BODY_BYTES:
+            self._send_json({"error": "Request body too large"}, 413)
+            return
         post_data = self.rfile.read(content_len) if content_len > 0 else b"{}"
 
         try:
@@ -218,7 +209,8 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
                 result = analyze_scenario_end_to_end(payload)
                 self._send_json(result)
             except Exception as e:
-                self._send_json({"error": str(e), "traceback": traceback.format_exc()}, 500)
+                traceback.print_exc(file=sys.stderr)
+                self._send_json({"error": str(e)}, 500)
         elif self.path == "/api/remediate":
             try:
                 scenario = payload.get("scenario")
@@ -235,10 +227,10 @@ class DashboardRequestHandler(BaseHTTPRequestHandler):
             self.send_error(404)
 
 
-def run_dashboard_server(port: int = 8000, host: str = "0.0.0.0") -> None:
-    """Run interactive dashboard HTTP server."""
-    server = HTTPServer((host, port), DashboardRequestHandler)
-    print(f"[IAM-XAI Dashboard] Server running at http://localhost:{port}/")
+def run_dashboard_server(port: int = 8000, host: str = "127.0.0.1") -> None:
+    """Run interactive dashboard HTTP server (localhost only unless ``host`` says otherwise)."""
+    server = ThreadingHTTPServer((host, port), DashboardRequestHandler)
+    print(f"[IAM-XAI Dashboard] Server running at http://{host}:{port}/")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

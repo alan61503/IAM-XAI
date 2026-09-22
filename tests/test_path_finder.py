@@ -6,7 +6,7 @@ from pathlib import Path
 from graph.graph_builder import build_attack_graph
 from graph.graph_serializer import load_graph_file
 from graph.models import DirectedAttackGraph, Edge, Node
-from parser.normalizer import normalize_scenario_file
+from parser.normalizer import normalize_scenario, normalize_scenario_file
 from path.path_finder import PathFinder, find_attack_paths
 
 
@@ -270,3 +270,55 @@ class TestPathFinder(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestExplicitDeny(unittest.TestCase):
+    """Explicit Deny overrides Allow during path discovery."""
+
+    def _paths(self, permissions, trust_statements=None):
+        trust = trust_statements or [{"Effect": "Allow", "Principal": {"AWS": "U"}, "Action": "sts:AssumeRole"}]
+        raw = {
+            "scenario_id": "deny",
+            "users": [{"name": "U"}],
+            "roles": [{"name": "R", "trust_policy": {"Statement": trust}, "permissions": permissions}],
+            "resources": [{"name": "B", "type": "s3", "arn": "arn:aws:s3:::b"}],
+        }
+        return PathFinder().find_paths(build_attack_graph(normalize_scenario(raw)))
+
+    def test_matching_deny_blocks_allow(self):
+        paths = self._paths([
+            {"Effect": "Allow", "Action": "s3:GetObject", "Resource": "arn:aws:s3:::b/*"},
+            {"Effect": "Deny", "Action": "s3:*", "Resource": "*"},
+        ])
+        self.assertEqual(paths, [])
+
+    def test_deny_of_one_action_keeps_rest_of_wildcard_allow(self):
+        paths = self._paths([
+            {"Effect": "Allow", "Action": "s3:*", "Resource": "arn:aws:s3:::b/*"},
+            {"Effect": "Deny", "Action": "s3:DeleteObject", "Resource": "arn:aws:s3:::b/*"},
+        ])
+        self.assertTrue(paths)
+
+    def test_deny_on_narrower_resource_does_not_block(self):
+        paths = self._paths([
+            {"Effect": "Allow", "Action": "s3:GetObject", "Resource": "arn:aws:s3:::b/*"},
+            {"Effect": "Deny", "Action": "s3:GetObject", "Resource": "arn:aws:s3:::b/secret/*"},
+        ])
+        self.assertTrue(paths)
+
+    def test_trust_policy_deny_blocks_assume_role(self):
+        paths = self._paths(
+            [{"Effect": "Allow", "Action": "s3:GetObject", "Resource": "arn:aws:s3:::b/*"}],
+            trust_statements=[
+                {"Effect": "Allow", "Principal": {"AWS": "U"}, "Action": "sts:AssumeRole"},
+                {"Effect": "Deny", "Principal": {"AWS": "U"}, "Action": "sts:AssumeRole"},
+            ],
+        )
+        self.assertEqual(paths, [])
+
+    def test_conditional_deny_is_not_assumed_to_apply(self):
+        paths = self._paths([
+            {"Effect": "Allow", "Action": "s3:GetObject", "Resource": "arn:aws:s3:::b/*"},
+            {"Effect": "Deny", "Action": "s3:*", "Resource": "*", "Condition": {"Bool": {"aws:SecureTransport": "false"}}},
+        ])
+        self.assertTrue(paths)
