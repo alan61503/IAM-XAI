@@ -1,89 +1,69 @@
-% IAM-XAI -- research paper in the NEJCS LaTeX format (NEJCS-LaTeX-sample.tex).
-% Single file: compile with pdfLaTeX (no BibTeX step; the bibliography below is
-% generated from refs.bib by paper/make_bibliography.py).
+% IAM-XAI -- IEEE conference paper draft
+% Compile with pdfLaTeX + BibTeX (e.g. upload the whole paper/ folder to Overleaf).
 % Every number below comes from evaluation/RESULTS.md (regenerate with
 % `python -m experiments.summary`); do not edit numbers by hand.
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
 
-\documentclass[12pt]{article}
-\usepackage[letterpaper,margin=1.5in]{geometry}
-
-\usepackage{iftex}
-\ifPDFTeX
-  \usepackage{times}  % template font (pdfLaTeX, Overleaf's default)
-\else
-  \usepackage{fontspec}  % XeLaTeX/LuaLaTeX: `times` has no effect, use its Times clone
-  \setmainfont{texgyretermes}[Extension=.otf, UprightFont=*-regular,
-    BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
-\fi
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
-\usepackage[font=small]{caption}
-
-\usepackage{titlesec}
-\titleformat{\section}
-  {\normalfont\normalsize}
-  {\thesection}{1em}{}
-\titleformat{\subsection}
-  {\normalfont\small}
-  {\thesubsection}{1em}{}
-
-\usepackage{amsmath,amssymb}
+\usepackage{textcomp}
+\usepackage{xcolor}
 \usepackage{booktabs}
+\usepackage{multirow}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning}
 \usepackage{url}
 \usepackage[hidelinks]{hyperref}
-\urlstyle{same}  % links in the body font, as in APA references
 
 \graphicspath{{figures/}}
-\setlength{\parindent}{2em}
-\setlength{\emergencystretch}{3em}  % lets lines with long identifiers re-break instead of overflowing
-% AWS action and field names (e.g. iam:PassRole) in the body font: typewriter
-% text cannot break and left wide gaps in justified lines.
-\newcommand{\code}[1]{#1}
-
-\title{\bf \large IAM-XAI: Explainable Attack Path Risk Assessment for Cloud Identity Configurations}
-\author{\normalsize Alan Chris Dsilva$^*$, Anna Mariya Jose, Bharathan K\\
-\normalsize and Julian Benedit P\\
-\small Department of Computer Science and Engineering,\\
-\small CHRIST (Deemed to be University), Bengaluru, India\\
-\small$^*$ alanchrisdisilva@gmail.com\\
-\small annamariya2605@gmail.com, bytexbharathan@gmail.com,\\
-\small julian.p@christuniversity.in}
-
-\date{}
-
-\pagestyle{empty}
+\newcommand{\todo}[1]{\textcolor{red}{[#1]}}
+\newcommand{\code}[1]{\texttt{#1}}
 
 \begin{document}
 
+\title{IAM-XAI: Explainable Attack Path Risk Assessment for Cloud Identity Configurations}
+
+\author{
+\IEEEauthorblockN{Alan Chris Dsilva, Anna Mariya Jose, Bharathan K and Dr. Julian Benedit P}
+\IEEEauthorblockA{\textit{Dept. of Computer Science and Engineering} \\
+\textit{CHRIST (Deemed to be University)}, Bengaluru, India \\
+alanchrisdisilva@gmail.com, annamariya2605@gmail.com, bytexbharathan@gmail.com, julian.p@christuniversity.in}
+}
+
 \maketitle
 
-\thispagestyle{empty}
-
-% Title and abstract: no symbols, special characters, footnotes or math (template rule).
-\begin{center}Abstract\end{center}
-Misconfigured identity and access management (IAM) is a leading cause of cloud
-compromise. Chains of individually harmless permissions, such as passing a role
-to a compute service or assuming a role trusted by an external account, let an
-attacker escalate to administrator or reach sensitive data. Existing
-graph-based tools can enumerate such chains, but they rank them with fixed
-rules and rarely say why a path is dangerous or which single permission to
-remove. We present IAM-XAI, an end-to-end pipeline that parses AWS IAM
-configurations into an attack graph, enumerates privilege escalation paths,
-predicts the risk of each path with machine learning, explains every
-prediction with SHAP, and selects a small set of choke point permissions whose
-removal eliminates the most risk. Because labeled real-world IAM data is
-unavailable, we generate 3,000 randomized environments with 76,479 attack paths,
-labeled by an impact and likelihood risk oracle that uses information the
+% ---------------------------------------------------------------------------
+\begin{abstract}
+Misconfigured identity and access management (IAM) is a leading cause of
+cloud compromise: chains of individually harmless permissions, such as
+passing a role to a compute service or assuming a role trusted by an external
+account, let an attacker escalate to administrator or reach sensitive data.
+Existing graph-based tools can enumerate such chains but rank them with fixed
+rules, and they rarely say \emph{why} a path is dangerous or \emph{which single
+permission} to remove. We present IAM-XAI, an end-to-end pipeline that parses
+AWS-style IAM configurations into an attack graph, enumerates
+privilege-escalation paths, predicts each path's risk with machine learning,
+explains every prediction with SHAP, and selects a small set of choke-point
+permissions whose removal eliminates the most risk. Because labeled real-world
+IAM data is unavailable, we generate 3,000 randomized environments (76,479 paths)
+labeled by an impact$\times$likelihood risk oracle that uses information the
 model sees only partially. On environments never seen in training, a Random
-Forest reaches a macro F1 score of 0.881, close to the ceiling of 0.891 set by
-label ambiguity, while static rules reach 0.390. Pure machine learning misses up
-to 96.8 percent of severe paths for escalation primitives absent from training,
-and a small domain-knowledge floor removes these misses without loss of
-accuracy. The top SHAP feature names a true cause of risk for 95.3 percent of
-paths, and three choke point cuts remove 52.3 percent of ground-truth risk,
-close to the optimum of 52.7 percent. On 26 independently documented attacks
-and 6 benign controls, IAM-XAI detects 18 attacks with no false alarms.
+Forest reaches 0.881 macro F1 (95\% CI 0.870--0.891), close to the 0.891
+accuracy ceiling imposed by label ambiguity, against 0.390 for static rules. We
+show that pure ML misses up to 96.8\% of severe paths for escalation primitives
+absent from training, and that a small domain-knowledge floor removes these
+misses without loss of accuracy. The top SHAP feature names a true cause of
+risk for 95.3\% of paths, and three greedily selected choke-point cuts remove
+52.3\% of ground-truth risk, against a 52.7\% oracle optimum. On 26
+independently documented attack scenarios and 6 benign controls,
+IAM-XAI detects 18 attacks with no false alarms.
+\end{abstract}
+
+\begin{IEEEkeywords}
+cloud security, identity and access management, privilege escalation, attack graphs, explainable AI, SHAP, risk assessment
+\end{IEEEkeywords}
 
 % ---------------------------------------------------------------------------
 \section{Introduction}
@@ -96,7 +76,7 @@ the permissions of any role it can \emph{pass} to a service. These mechanisms
 compose: an identity that may only call \code{iam:PassRole} and
 \code{ec2:RunInstances} can launch an instance carrying an administrator role
 and thereby become administrator~\cite{gietzen2018rhino}. Over twenty such
-privilege-escalation methods are publicly cataloged~\cite{gietzen2018rhino},
+privilege-escalation methods are publicly catalogued~\cite{gietzen2018rhino},
 and deliberately vulnerable training environments reproduce them~\cite{cloudgoat}.
 
 Graph-based analysis is the natural way to expose these compositions. Attack
@@ -126,17 +106,17 @@ configurations with expert risk labels. We therefore generate synthetic
 environments and label them with a documented risk oracle. An earlier version
 of this project labeled paths with rules over the model's own input features
 and obtained a perfect but meaningless accuracy of 1.0. Following
-recommendations on pitfalls in security machine learning~\cite{arp2022dos}, we
-designed the evaluation so that such circularity and leakage are ruled out.
-The oracle uses hidden information, splits are grouped by environment, and
-results are checked against independently published attacks.
+recommendations on pitfalls in security ML~\cite{arp2022dos}, we designed the
+evaluation so that such circularity and leakage are ruled out. The oracle uses
+hidden information, splits are grouped by environment, and results are
+checked against independently published attacks.
 
 Our contributions are:
 \begin{enumerate}
   \item An end-to-end, reproducible pipeline from IAM configuration to
         risk prediction, per-path SHAP explanation and choke-point remediation,
         with a web dashboard for interactive use.
-  \item A synthetic IAM environment generator and an impact $\times$ likelihood
+  \item A synthetic IAM environment generator and an impact$\times$likelihood
         risk oracle whose labels are not a function of the model's
         inputs, yielding a 76,479-path dataset with a measurable ambiguity ceiling.
   \item A rigorous evaluation of six research questions: accuracy on unseen
@@ -151,16 +131,16 @@ Our contributions are:
 Section~\ref{sec:related} reviews related work, Section~\ref{sec:design}
 describes the pipeline, Section~\ref{sec:dataset} the dataset and oracle,
 Section~\ref{sec:setup} the evaluation protocol, and Section~\ref{sec:results}
-the results. Sections~\ref{sec:discussion} and~\ref{sec:conclusion} discuss
+the results. Sections~\ref{sec:discussion}--\ref{sec:conclusion} discuss
 limitations and conclude.
 
 % ---------------------------------------------------------------------------
 \section{Background and Related Work}
 \label{sec:related}
 
-\subsection{AWS IAM and privilege escalation}
+\subsection{AWS IAM and Privilege Escalation}
 An AWS principal (user, group or role) receives permissions through
-identity-based policies of \code{Allow} and \code{Deny} statements over
+identity-based policies of \code{Allow}/\code{Deny} statements over
 actions and resource ARNs, possibly guarded by conditions such as
 multi-factor authentication (MFA), source IP or an \code{ExternalId}. Roles
 additionally carry a \emph{trust policy} naming who may assume them. The
@@ -172,9 +152,9 @@ permissions compose. Examples include rewriting one's own policy
 privileged role to a new Lambda function or EC2 instance, or assuming a
 chain of roles~\cite{gietzen2018rhino}.
 
-\subsection{Attack graphs}
+\subsection{Attack Graphs}
 Attack graphs model how an adversary chains exploits or privileges toward a
-goal. Sheyner et al.~\cite{sheyner2002automated} generated them with model
+goal. Sheyner~et~al.~\cite{sheyner2002automated} generated them with model
 checking, and MulVAL~\cite{ou2005mulval} and later logical attack
 graphs~\cite{ou2006scalable} made generation scalable with Datalog rules.
 Minimal cut sets of attack graphs identify the smallest set of measures that
@@ -182,8 +162,8 @@ blocks every attack~\cite{jha2002two}. We apply the same idea to IAM
 permission edges, but weight paths by predicted risk instead of treating them
 uniformly.
 
-\subsection{Cloud IAM analysis}
-\textit{Formal verification.} Zelkova~\cite{backes2018zelkova} encodes AWS
+\subsection{Cloud IAM Analysis}
+\textbf{Formal verification.} Zelkova~\cite{backes2018zelkova} encodes AWS
 policies in SMT to answer questions such as ``is this bucket public?'', and
 stratified abstraction~\cite{backes2020stratified} scales the approach to the
 engine behind IAM Access Analyzer. These methods reason exactly about one
@@ -194,7 +174,7 @@ state machine and find multi-step attacks with a formal guarantee. Their
 output is whether an attack exists, not how risky it is or which
 permission to remove.
 
-\textit{Repair.} IAMPERE~\cite{hu2023iampere} is the closest work to our
+\textbf{Repair.} IAMPERE~\cite{hu2023iampere} is the closest work to our
 remediation step. A graph neural network proposes a patch, and a MaxSAT
 solver shrinks it to a near-minimal change that provably removes every
 detected escalation. IAMPERE removes all escalations regardless of their
@@ -202,29 +182,29 @@ consequence and does not explain its choices. IAM-XAI instead prioritizes
 cuts by predicted risk under a budget, and justifies each cut with feature
 attributions.
 
-\textit{Practitioner tools.} Principal Mapper~\cite{pmapper} graphs AWS
+\textbf{Practitioner tools.} Principal Mapper~\cite{pmapper} graphs AWS
 principals and reports which can escalate to administrator.
 Cloudsplaining~\cite{cloudsplaining} flags risky actions in policies, and
 BloodHound~\cite{bloodhound} popularized attack-path graphs for Active
 Directory. These tools apply fixed rules and produce binary findings.
 
-\textit{Identity attack graphs with learning and cuts.} Heat-ray~\cite{dunagan2009heatray}
+\textbf{Identity attack graphs with learning and cuts.} Heat-ray~\cite{dunagan2009heatray}
 combined identity attack graphs, machine learning and edge-cut optimization to
-defend Windows domains, and Guo et al.~\cite{guo2022practical,guo2023scalable}
+defend Windows domains, and Guo~et~al.~\cite{guo2022practical,guo2023scalable}
 compute budgeted edge blocking on Active Directory graphs. Choke-point
 selection is also the IAM counterpart of minimum-cost network
 hardening~\cite{wang2006minimum}. Graph neural networks have recently been
 trained on synthetic environment graphs to predict attack
 paths~\cite{francois2025pignn}.
 
-\textit{Positioning.} To our knowledge, no prior work combines attack-path
+\textbf{Positioning.} To our knowledge, no prior work combines attack-path
 enumeration, a learned per-path risk score, SHAP explanations and budgeted
 choke-point selection for cloud IAM. We make no claim to the soundness
 guarantees of the model-checking and SMT approaches: IAM-XAI is a risk
 \emph{prioritization} and explanation layer that could sit on top of such a
 sound path finder.
 
-\subsection{Machine learning and explainability in security}
+\subsection{Machine Learning and Explainability in Security}
 SHAP~\cite{lundberg2017shap} attributes a model's output to its input
 features using Shapley values, and TreeExplainer~\cite{lundberg2020tree}
 computes them exactly and efficiently for tree ensembles such as Random
@@ -233,55 +213,55 @@ is a model-agnostic alternative. Surveys of explainable AI for
 cybersecurity~\cite{capuano2022xai} note that explanations are rarely
 evaluated quantitatively. We therefore measure both whether explanations
 recover known causes and whether they are faithful to the model, using
-feature deletion~\cite{samek2017evaluating,hooker2019roar}. Arp et al.~\cite{arp2022dos}
-catalog pitfalls in security machine learning, including data snooping,
-spurious correlations and inappropriate baselines. Our grouped splits,
-static-rule baseline and external benchmark address these directly.
+feature deletion~\cite{samek2017evaluating,hooker2019roar}. Arp~et~al.~\cite{arp2022dos}
+catalogue pitfalls in security ML, including data snooping, spurious
+correlations and inappropriate baselines. Our grouped splits, static-rule
+baseline and external benchmark address these directly.
 
 % ---------------------------------------------------------------------------
 \section{System Design}
 \label{sec:design}
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
 \begin{tikzpicture}[
-  node distance=0.55cm and 0.45cm,
-  box/.style={draw, rounded corners=2pt, align=center, font=\small,
-              minimum height=1.1cm, text width=2.35cm, fill=blue!6},
+  node distance=0.28cm,
+  box/.style={draw, rounded corners=2pt, align=center, font=\footnotesize,
+              minimum height=1.0cm, text width=1.62cm, fill=blue!6},
   ml/.style={box, fill=orange!12},
   arr/.style={-{Stealth[length=2mm]}, thick}]
 \node[box] (cfg) {IAM config\\(JSON)};
-\node[box, right=of cfg] (parse) {Parser and\\normalizer};
+\node[box, right=of cfg] (parse) {Parser \&\\normalizer};
 \node[box, right=of parse] (graph) {Attack\\graph};
 \node[box, right=of graph] (paths) {Path\\enumeration};
-\node[box, below=of paths] (feat) {Feature\\extraction};
-\node[ml, left=of feat] (model) {Risk model\\(RF + floor)};
-\node[ml, left=of model] (shap) {SHAP\\explainer};
-\node[ml, left=of shap] (choke) {Choke points and\\remediation};
+\node[box, right=of paths] (feat) {Feature\\extraction};
+\node[ml, right=of feat] (model) {Risk model\\(RF + floor)};
+\node[ml, right=of model] (shap) {SHAP\\explainer};
+\node[ml, right=of shap] (choke) {Choke points \&\\remediation};
 \foreach \a/\b in {cfg/parse, parse/graph, graph/paths, paths/feat, feat/model, model/shap, shap/choke}
   \draw[arr] (\a) -- (\b);
-\node[box, fill=gray!10, below=0.6cm of model, text width=5.2cm] (gen)
-  {Synthetic environment generator and risk oracle (training only)};
-\draw[arr, dashed] (gen) -- node[right, font=\footnotesize]{labels} (model);
+\node[box, fill=gray!10, below=0.55cm of feat, text width=4.6cm] (gen)
+  {Synthetic environment generator + risk oracle (training only)};
+\draw[arr, dashed] (gen) -- node[right, font=\scriptsize]{labels} (model);
+\draw[arr, dashed] (gen.west) -| (cfg.south);
 \end{tikzpicture}
-\caption{IAM-XAI pipeline, read left to right along the top row and right to
-left along the bottom row. Blue stages are deterministic graph analysis;
+\caption{IAM-XAI pipeline. Blue stages are deterministic graph analysis;
 orange stages are learned and explanatory. The generator and oracle are used
 only to build training and evaluation data.}
 \label{fig:pipeline}
-\end{figure}
+\end{figure*}
 
-Figure~\ref{fig:pipeline} shows the pipeline. Every stage is a library module
+Fig.~\ref{fig:pipeline} shows the pipeline. Every stage is a library module
 with a command-line entry point, and all randomness is seeded.
 
-\subsection{Parsing and normalization}
+\subsection{Parsing and Normalization}
 The parser accepts AWS-style IAM JSON (users, groups, roles with trust and
 permission policies, resources) in both AWS casing (\code{Effect},
 \code{Action}, \code{Statement}) and lower case. It validates structure,
 expands single values into lists, and emits a deterministic normalized
 representation of entities, permission statements and trust relationships.
 
-\subsection{Attack graph}
+\subsection{Attack Graph}
 Nodes are users, groups, roles, resources and synthetic principals for
 external accounts and the trust wildcard. Directed edges have four types:
 \code{CAN\_ASSUME} (a trust policy admits the source and the source holds
@@ -293,13 +273,13 @@ creates it. Explicit \code{Deny} statements remove matching edges. Action-
 and resource-aware matching ensures a \code{Deny} on one bucket does not
 remove access to another. Conditional denies are conservatively ignored.
 
-\subsection{Attack path enumeration}
+\subsection{Attack Path Enumeration}
 A depth-first search from every identity enumerates simple (cycle-free) paths
 of at most six hops that end at a resource or a passable role. An adjacency
 index gives constant-time lookup of outgoing edges. Each path is serialized
 with its nodes, edges and hop count.
 
-\subsection{Feature extraction}
+\subsection{Feature Extraction}
 \label{sec:features}
 A single shared function turns a path and the analyzer-visible scenario
 context into a feature row. Both the dataset generator and the dashboard call
@@ -312,11 +292,11 @@ analyst could read from the configuration. This includes resource types, any
 contains the true sensitivity of the data.
 
 \begin{table}[t]
+\centering
 \caption{Per-path feature vector (27 fields)}
 \label{tab:features}
-\centering
-\small
-\begin{tabular}{@{}p{2.6cm}p{10.4cm}@{}}
+\footnotesize
+\begin{tabular}{@{}p{1.35cm}p{6.6cm}@{}}
 \toprule
 Group & Features \\
 \midrule
@@ -327,27 +307,27 @@ Categorical (2) & target type, target service \\
 \end{tabular}
 \end{table}
 
-\subsection{Risk models}
+\subsection{Risk Models}
 We train Logistic Regression (a linear, interpretable baseline), Random Forest
 (RF)~\cite{breiman2001rf} and XGBoost~\cite{chen2016xgboost} to predict one of
 four classes: LOW, MEDIUM, HIGH or CRITICAL. From the primary model's class
 probabilities $P(c \mid \mathbf{x})$ we also derive an \emph{expected risk}
 \begin{equation}
-  \hat r(\mathbf{x}) = \sum_{c} P(c \mid \mathbf{x})\, w_c, \qquad
+  \hat r(\mathbf{x}) = \sum_{c} P(c \mid \mathbf{x})\, w_c, \quad
   w = (0.15,\, 0.40,\, 0.65,\, 0.85),
   \label{eq:exprisk}
 \end{equation}
 which, unlike the top-class probability, is low for a confident LOW prediction.
 It is used to weight paths during choke-point selection.
 
-\textit{Hybrid model.} Section~\ref{sec:rq2} shows that a learned model cannot
+\textbf{Hybrid model.} Section~\ref{sec:rq2} shows that a learned model cannot
 recognize escalation primitives it has never seen. The hybrid model therefore
 raises the RF's label to a floor implied by well-known primitives:
 administrator-equivalent or policy-modification permissions $\Rightarrow$ at
 least HIGH; PassRole of a privileged role $\Rightarrow$ at least HIGH; any
 other PassRole $\Rightarrow$ at least MEDIUM. The floor never lowers a label.
 
-\subsection{SHAP explanations}
+\subsection{SHAP Explanations}
 For every prediction, TreeExplainer~\cite{lundberg2020tree} computes the SHAP
 value $\phi_f$ of each feature $f$ for the predicted class, so that the
 features' contributions sum to the difference between that class's
@@ -357,7 +337,7 @@ vector, SHAP values are computed once per distinct vector. This reduces the
 time to explain all 76k paths from roughly three hours to five minutes on a
 laptop.
 
-\subsection{Choke-point detection and remediation}
+\subsection{Choke-Point Detection and Remediation}
 \label{sec:choke}
 A choke point is a graph edge, and hence a specific policy statement, whose
 removal breaks many high-risk paths. A fixed table maps each model feature to
@@ -367,32 +347,30 @@ the edges that carry it. For example, \code{pass\_role} maps to
 receives the score
 \begin{equation}
   s_p(e) = 0.1 + 2\!\!\sum_{f \in \mathrm{top}(p),\, f \mapsto e}\!\! |\phi_f|,
-  \label{eq:pathscore}
 \end{equation}
 and the highest-scoring edge is the path's own choke point. Across a scenario,
-each edge accumulates the expected risk $R(e) = \sum_{p \ni e} \hat r_p$ of
-Eq.~(\ref{eq:exprisk}) and the number of paths $n(e)$ it lies on, and is ranked by
+each edge accumulates the expected risk $R(e) = \sum_{p \ni e} \hat r_p$ and the
+number of paths $n(e)$ it lies on, and is ranked by
 \begin{equation}
   S(e) = R(e)\,\bigl(1 + 0.3\,(n(e) - 1)\bigr) + 0.5\,B(e),
-  \label{eq:edgescore}
 \end{equation}
-where $B(e)$ sums $s_p(e)$ from Eq.~(\ref{eq:pathscore}) over the paths whose
-own choke point is $e$. Ranking edges independently can waste cuts on paths
-that an earlier cut already broke. For a budget of $k$ cuts we therefore also
-provide a \emph{greedy} selector that solves the weighted maximum-coverage
-problem: it repeatedly picks the edge on the largest remaining expected risk
-and then discards the paths it breaks. The remediation module converts a
-chosen edge into a minimal policy diff (removing the action, or the trust
-statement), re-runs path discovery on the patched configuration to verify
-that the paths are gone, and emits a human-readable playbook.
+where $B(e)$ sums $s_p(e)$ over the paths whose own choke point is $e$.
+Ranking edges independently can waste cuts on paths that an earlier cut
+already broke. For a budget of $k$ cuts we therefore also provide a
+\emph{greedy} selector that solves the weighted maximum-coverage problem: it
+repeatedly picks the edge on the largest remaining expected risk and then
+discards the paths it breaks. The remediation module converts a chosen edge
+into a minimal policy diff (removing the action, or the trust statement),
+re-runs path discovery on the patched configuration to verify that the paths
+are gone, and emits a human-readable playbook.
 
 \subsection{Dashboard}
 A local web dashboard runs the entire pipeline on an uploaded or bundled
-configuration (Figure~\ref{fig:dashboard}). It shows the attack graph,
-per-path risk, SHAP factors, ranked choke points and one-click remediation
-with before-and-after verification.
+configuration (Fig.~\ref{fig:dashboard}). It shows the attack graph, per-path
+risk, SHAP factors, ranked choke points and one-click remediation with
+before/after verification.
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{dashboard.png}
 \caption{IAM-XAI dashboard on a generated environment (21 nodes, 25 edges,
@@ -401,13 +379,13 @@ users, roles and resources, with choke-point edges in dashed red. Right: SHAP
 attribution for the selected CRITICAL path, led by its Secrets Manager target
 and data-classification tag.}
 \label{fig:dashboard}
-\end{figure}
+\end{figure*}
 
 % ---------------------------------------------------------------------------
 \section{Synthetic Dataset and Ground Truth}
 \label{sec:dataset}
 
-\subsection{Environment generator}
+\subsection{Environment Generator}
 Each environment is built from its own seeded random stream, so generation is
 reproducible and parallel. It starts from a benign baseline of 3--20 users,
 2--15 roles and 5--30 resources of six types: S3 buckets, DynamoDB tables,
@@ -422,7 +400,7 @@ Mitigating conditions (MFA, source IP, \code{ExternalId}) and explicit
 imperfect: 85\% of resources carry a \code{DataClassification} tag, and a few
 tags are one tier off.
 
-\subsection{Risk oracle}
+\subsection{Risk Oracle}
 Labels must not be a rule over the model's own features, or learning becomes
 circular. The oracle scores each path as
 \begin{equation}
@@ -436,15 +414,14 @@ role that is truly privileged (0.90) or not (0.35). Likelihood $L$ is the
 exposure of the entry point (wildcard 1.0, external or cross-account 0.9,
 internal 0.6), decayed by 0.9 per additional hop and multiplied by a factor
 for each \emph{specific} mitigating condition on the path (MFA 0.45, source IP
-0.60, \code{ExternalId} 0.65). Cut points 0.20, 0.36 and 0.55 map the score of
-Eq.~(\ref{eq:oracle}) to LOW, MEDIUM, HIGH and CRITICAL. The oracle also
-records a human-readable cause such as \code{restricted\_data + external\_trust}.
+0.60, \code{ExternalId} 0.65). Cut points 0.20, 0.36 and 0.55 map the score to
+LOW, MEDIUM, HIGH and CRITICAL. The oracle also records a human-readable cause
+such as \code{restricted\_data + external\_trust}.
 
 The model sees only partial evidence of the oracle's inputs: an imperfect
 tag instead of the true tier, whether \emph{some} condition exists instead
-of which one, and so on. Identical feature vectors can therefore carry
-different labels, which makes the task non-trivial and gives it a measurable
-ceiling.
+of which one, and so on. Identical feature vectors can therefore carry different labels, which
+makes the task non-trivial and gives it a measurable ceiling.
 
 \subsection{Dataset}
 We generate 3,000 environments. To stop dense environments from
@@ -458,18 +435,17 @@ these features, predicting the majority label of each distinct vector, is 0.891.
 \section{Evaluation Protocol}
 \label{sec:setup}
 
-\textit{Splits.} Data are split 70/15/15 into train, validation and test sets
+\textbf{Splits.} Data are split 70/15/15 into train, validation and test sets
 \emph{grouped by environment}, so that no environment contributes paths to
 two splits. The random seed is fixed at 42.
 
-\textit{Tuning.} Models are implemented with scikit-learn~\cite{pedregosa2011sklearn}
+\textbf{Tuning.} Models are implemented with scikit-learn~\cite{pedregosa2011sklearn}
 and XGBoost. A small grid per model (Logistic Regression: $C$; RF with
 300 trees: maximum depth, minimum leaf size, class weighting; XGBoost with
 300 rounds: depth, learning rate) is searched on validation macro F1. The
-chosen configuration is refit on train and validation data and evaluated once
-on test.
+chosen configuration is refit on train+validation and evaluated once on test.
 
-\textit{Metrics and statistics.} We report accuracy, macro F1, one-vs-rest
+\textbf{Metrics and statistics.} We report accuracy, macro F1, one-vs-rest
 ROC-AUC and the \emph{severe-miss rate}: the share of truly HIGH or CRITICAL
 paths rated LOW or MEDIUM, the error that matters most to a defender. 95\%
 confidence intervals come from 1,000 bootstrap resamples of test
@@ -477,13 +453,13 @@ confidence intervals come from 1,000 bootstrap resamples of test
 McNemar's test~\cite{mcnemar1947,dietterich1998tests}; grouped 5-fold
 cross-validation measures stability.
 
-\textit{Baseline.} A static rule set assigns LOW to read-only access, MEDIUM
+\textbf{Baseline.} A static rule set assigns LOW to read-only access, MEDIUM
 to wildcards, HIGH to PassRole, role chains, long paths or sensitive targets,
 and CRITICAL to administrator, external or cross-account trust, policy
 modification, or a wildcard reaching a sensitive target. It represents
 conventional rule-based scoring.
 
-\textit{Research questions.}
+\textbf{Research questions.}
 RQ1: How accurately is risk predicted on unseen environments?
 RQ2: Are attack patterns never seen in training recognized?
 RQ3: Are SHAP explanations correct and faithful?
@@ -495,23 +471,23 @@ RQ6: Are independently documented attacks detected?
 \section{Results}
 \label{sec:results}
 
-\subsection{RQ1: Risk prediction on unseen environments}
+\subsection{RQ1: Risk Prediction on Unseen Environments}
 
 \begin{table}[t]
-\caption{Test results on held-out environments (RQ1). Brackets give the 95\%
-bootstrap confidence interval.}
-\label{tab:rq1}
 \centering
-\small
+\caption{Test results on held-out environments (RQ1). Brackets: 95\% bootstrap CI.}
+\label{tab:rq1}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-Model & Accuracy & Macro F1 & ROC-AUC & Severe miss \\
+Model & Accuracy & Macro F1 & AUC & Sev.\ miss \\
 \midrule
-Static rules & 0.421 & 0.390 [0.371, 0.409] & -- & 13.5\% \\
-Logistic Regression & 0.753 & 0.765 [0.753, 0.776] & 0.914 & 12.9\% \\
-Random Forest & 0.879 & 0.881 [0.870, 0.891] & 0.974 & \textit{9.8\%} \\
-XGBoost & \textit{0.882} & \textit{0.884} [0.874, 0.894] & \textit{0.979} & 10.4\% \\
-Hybrid (RF + floor) & 0.878 & 0.880 [0.869, 0.890] & -- & \textit{9.8\%} \\
+Static rules & 0.421 & 0.390 [.371,.409] & -- & 13.5\% \\
+Logistic Reg. & 0.753 & 0.765 [.753,.776] & 0.914 & 12.9\% \\
+Random Forest & 0.879 & 0.881 [.870,.891] & 0.974 & \textbf{9.8\%} \\
+XGBoost & \textbf{0.882} & \textbf{0.884} [.874,.894] & \textbf{0.979} & 10.4\% \\
+Hybrid (RF+floor) & 0.878 & 0.880 [.869,.890] & -- & \textbf{9.8\%} \\
 \midrule
 \multicolumn{5}{@{}l}{Label-ambiguity ceiling (accuracy): 0.891} \\
 \bottomrule
@@ -531,23 +507,21 @@ when the entry point is external. The static rules reach only 0.390 macro F1.
 They are too coarse, because a single wildcard or PassRole flag does not
 determine risk once exposure and mitigating conditions are accounted for. On the
 11,526 test paths the hybrid floor turns 9 correct RF predictions into
-over-estimates and corrects none (McNemar $p=0.004$), an accuracy cost of
-0.001. Figure~\ref{fig:confusion} shows that most RF errors fall between
-adjacent classes.
+over-estimates and corrects none (McNemar $p=0.004$), an accuracy cost of 0.001. Fig.~\ref{fig:confusion} shows that most RF errors fall
+between adjacent classes.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.6\textwidth]{fig2_confusion_matrix.png}
-\caption{Random Forest confusion matrix on the test environments. Most errors
-are between adjacent risk levels.}
+\includegraphics[width=0.85\columnwidth]{fig2_confusion_matrix.png}
+\caption{Random Forest confusion matrix on the test environments. Most errors are between adjacent risk levels.}
 \label{fig:confusion}
 \end{figure}
 
-\subsection{RQ2: Attack patterns never seen in training}
+\subsection{RQ2: Attack Patterns Never Seen in Training}
 \label{sec:rq2}
 For each of the nine attack patterns we train the RF only on environments
 \emph{without} that pattern and test it on held-out paths that exercise it.
-Figure~\ref{fig:lopo} shows the severe-miss rates. \emph{Structural} patterns
+Fig.~\ref{fig:lopo} shows the severe-miss rates. \emph{Structural} patterns
 transfer well, because they combine features the model has seen in other
 contexts: assume-role chains, wildcard actions and resources, and
 external or cross-account trust (severe-miss 1.3--14.3\%). Escalation
@@ -563,13 +537,13 @@ not covered by the floor and is a candidate for a further domain rule.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.85\textwidth]{fig3_unseen_pattern_generalization.png}
+\includegraphics[width=\columnwidth]{fig3_unseen_pattern_generalization.png}
 \caption{Leave-one-pattern-out severe-miss rate (RQ2). The escalation floor
 eliminates misses on the three privilege-escalation primitives.}
 \label{fig:lopo}
 \end{figure}
 
-\subsection{RQ3: Correctness and faithfulness of explanations}
+\subsection{RQ3: Correctness and Faithfulness of Explanations}
 We sample 3,000 test paths and ask two questions. \emph{Correctness}: do the
 top SHAP features name the oracle's true drivers of risk? Each cause term,
 such as \code{restricted\_data} or \code{external\_trust}, is mapped to the
@@ -580,17 +554,18 @@ probability~\cite{samek2017evaluating}. The baselines are a single global rankin
 (mean $|\phi|$ over all evaluated paths) and a random ranking.
 
 \begin{table}[t]
+\centering
 \caption{Explanation correctness and faithfulness (RQ3, 3,000 test paths)}
 \label{tab:rq3}
-\centering
-\small
+\footnotesize
+\setlength{\tabcolsep}{2.6pt}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
-& \multicolumn{3}{c}{True cause recovered} & \multicolumn{2}{c}{Probability drop} \\
+& \multicolumn{3}{c}{True cause recovered} & \multicolumn{2}{c}{Prob.\ drop} \\
 \cmidrule(lr){2-4}\cmidrule(l){5-6}
-Ranking & Top 1 & Top 3 & Top 3, multi-cause & $k=1$ & $k=3$ \\
+Ranking & Top-1 & Top-3 & Top-3 multi & $k{=}1$ & $k{=}3$ \\
 \midrule
-SHAP (per path) & \textit{95.3\%} & \textit{90.5\%} & \textit{77.0\%} & \textit{0.387} & \textit{0.537} \\
+SHAP (per path) & \textbf{95.3\%} & \textbf{90.5\%} & \textbf{77.0\%} & \textbf{0.387} & \textbf{0.537} \\
 Global importance & 95.0\% & 84.5\% & 70.6\% & 0.299 & 0.427 \\
 Random & 29.9\% & 52.8\% & 38.4\% & 0.021 & 0.066 \\
 \bottomrule
@@ -605,41 +580,40 @@ causes they recover 77.0\% of the true causes in their top three, against
 70.6\% for the global ranking. Removing SHAP's top three features lowers the
 model's confidence by 0.537, against 0.427 for the global ranking and 0.066
 for a random one. The explanations therefore reflect what the model actually
-uses. Figure~\ref{fig:waterfall} shows a typical CRITICAL path. The
+uses. Fig.~\ref{fig:waterfall} shows a typical CRITICAL path. The
 restricted-data tag and sensitive target dominate, and external trust, a
 wildcard action and cross-account access add smaller contributions.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.85\textwidth]{shap_waterfall_example.png}
-\caption{SHAP waterfall for a path predicted CRITICAL: a principal from an
-external account reaches a restricted resource with a wildcard action.}
+\includegraphics[width=\columnwidth]{shap_waterfall_example.png}
+\caption{SHAP waterfall for a path predicted CRITICAL: a principal from an external account reaches a restricted resource with a wildcard action.}
 \label{fig:waterfall}
 \end{figure}
 
-\subsection{RQ4: Choke-point remediation}
+\subsection{RQ4: Choke-Point Remediation}
 We generate 200 fresh environments with a seed never used in training (6,979
 paths). We cut $k$ edges chosen by each strategy and measure the share of
 \emph{ground-truth oracle} risk removed. The strategies are a random edge,
-the most-shared edge (pure graph topology), IAM-XAI's ranking $S(e)$ of
-Eq.~(\ref{eq:edgescore}), the same ranking without the SHAP term (ablation),
-the greedy selector, and an upper bound that runs greedy with the hidden
-oracle scores.
+the most-shared edge (pure graph topology), IAM-XAI's ranking
+$S(e)$, the same ranking without the SHAP term (ablation), the greedy
+selector, and an upper bound that runs greedy with the hidden oracle scores.
 
 \begin{table}[t]
+\centering
 \caption{Ground-truth risk removed by cutting $k$ edges (RQ4, 200 unseen environments)}
 \label{tab:rq4}
-\centering
-\small
+\footnotesize
+\setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}lccc@{}}
 \toprule
-Strategy & Risk, $k=1$ & Risk, $k=3$ & Severe paths, $k=3$ \\
+Strategy & Risk, $k{=}1$ & Risk, $k{=}3$ & Severe paths, $k{=}3$ \\
 \midrule
 Random edge & 7.2\% & 20.0\% & 20.8\% \\
 Most-shared edge & 24.6\% & 43.9\% & 43.9\% \\
 IAM-XAI ranked & 25.8\% & 46.6\% & 50.1\% \\
 \quad ranked, no SHAP & 26.0\% & 46.7\% & 49.5\% \\
-IAM-XAI greedy & \textit{26.4\%} & \textit{52.3\%} & \textit{59.7\%} \\
+IAM-XAI greedy & \textbf{26.4\%} & \textbf{52.3\%} & \textbf{59.7\%} \\
 \midrule
 Oracle upper bound & 26.7\% & 52.7\% & 61.3\% \\
 \bottomrule
@@ -649,22 +623,22 @@ Oracle upper bound & 26.7\% & 52.7\% & 61.3\% \\
 With three cuts, greedy selection removes 52.3\% of real risk and 59.7\% of
 severe paths (Table~\ref{tab:rq4}). This is 99\% of the oracle optimum, and
 7.3--9.7 percentage points more than the graph-only baseline (95\% paired
-bootstrap confidence interval). The ablation clarifies where the gain comes
-from. Removing the SHAP term from the ranking changes almost nothing, so the
-improvement over pure topology comes from \emph{machine-learned risk
-weighting}, and the gain of greedy over ranked selection comes from avoiding
-redundant cuts. SHAP's role in remediation is to explain \emph{why} an edge
-matters to the engineer who must approve its removal, not to select it. We
-report this as a finding, not a weakness: it separates the value of
-prediction from the value of explanation.
+bootstrap CI). The ablation clarifies where the gain comes from. Removing the
+SHAP term from the ranking changes almost nothing, so the improvement over
+pure topology comes from \emph{ML risk weighting}, and the gain of greedy over
+ranked selection comes from avoiding redundant cuts. SHAP's role in remediation
+is to explain \emph{why} an edge matters to the engineer who must approve its
+removal, not to select it. We report this as a finding, not a weakness: it
+separates the value of prediction from the value of explanation.
 
-\subsection{RQ5: Sensitivity to oracle assumptions}
+\subsection{RQ5: Sensitivity to Oracle Assumptions}
 
 \begin{table}[t]
+\centering
 \caption{Macro F1 under perturbed oracles (RQ5, 1,500 environments each)}
 \label{tab:rq5}
-\centering
-\small
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 Variant & Ceiling & Rules & LR & RF & Hybrid \\
@@ -691,23 +665,24 @@ variant's accuracy ceiling, and the hybrid's severe-miss rate stays between
 7.2\% and 12.5\%. Label noise lowers the ceiling and every model with it, as
 expected.
 
-\subsection{RQ6: Independently documented attacks}
+\subsection{RQ6: Independently Documented Attacks}
 To check that IAM-XAI is not merely learning its own generator, we encode
 32 hand-written configurations and run them through the unchanged pipeline.
-Twenty-one are the IAM privilege-escalation methods cataloged by Rhino
+Twenty-one are the IAM privilege-escalation methods catalogued by Rhino
 Security Labs~\cite{gietzen2018rhino}. Five are modeled on CloudGoat
 scenarios~\cite{cloudgoat} and well-known trust misconfigurations, for example
-cross-account trust without an \code{ExternalId}. Six are benign controls. An
-attack counts as detected if any of its paths is rated HIGH or CRITICAL.
+cross-account trust without an \code{ExternalId}.
+Six are benign controls. An attack counts as detected if any of its paths is
+rated HIGH or CRITICAL.
 
 \begin{table}[t]
+\centering
 \caption{External benchmark (RQ6)}
 \label{tab:rq6}
-\centering
-\small
+\footnotesize
 \begin{tabular}{@{}lcc@{}}
 \toprule
-Method & Attacks detected & False alarms (benign controls) \\
+Method & Attacks detected & False alarms (benign) \\
 \midrule
 Random Forest & 18/26 (69\%) & 0/6 \\
 Hybrid & 18/26 (69\%) & 0/6 \\
@@ -738,8 +713,8 @@ set of edge types to add.
 \section{Discussion and Threats to Validity}
 \label{sec:discussion}
 
-\textit{What the results mean.} On the features an analyzer can extract, a tree
-ensemble approximates a principled impact $\times$ likelihood risk model almost
+\textbf{What the results mean.} On the features an analyzer can extract, a tree
+ensemble approximates a principled impact$\times$likelihood risk model almost
 perfectly, and it far outperforms fixed rules. Explanations name true causes
 and are faithful to the model. Risk-weighted choke-point selection
 approaches the optimum. The most practically important result is RQ2. A
@@ -748,7 +723,7 @@ training distribution, and a few lines of domain knowledge fix this at no
 measurable cost. We recommend that learned IAM risk scoring always be paired
 with such a floor.
 
-\textit{Synthetic ground truth.} The models learn our oracle, not expert
+\textbf{Synthetic ground truth.} The models learn our oracle, not expert
 judgment about real incidents. We mitigate this in four ways: the oracle
 follows the standard risk $=$ impact $\times$ likelihood
 decomposition of NIST SP 800-30~\cite{nist2012sp80030} rather than a severity score
@@ -757,22 +732,22 @@ partially, conclusions hold under perturbed weights, noise and cut points
 (RQ5), and detection is checked against independently published attacks
 (RQ6). A study with expert-labeled real configurations remains necessary.
 
-\textit{Low-cardinality features.} 98.2\% of test feature vectors also occur
+\textbf{Low-cardinality features.} 98.2\% of test feature vectors also occur
 in training. Grouped splits prevent environment-level leakage, and the ceiling
 bounds achievable accuracy, but RQ1 measures generalization to new
 environments more than to new feature combinations. RQ2 and RQ6 test the latter.
 
-\textit{Graph coverage and scale.} Credential takeover, group-membership
+\textbf{Graph coverage and scale.} Credential takeover, group-membership
 changes and code injection are not modeled (RQ6). Path enumeration is
 exponential in dense graphs. Our synthetic environments are laptop-scale, and
 large enterprise accounts will need pruning or streaming enumeration.
 
-\textit{Remediation feasibility.} RQ4 assumes any edge can be cut without
+\textbf{Remediation feasibility.} RQ4 assumes any edge can be cut without
 business impact. In practice some permissions are required, and a
 \code{CAN\_ASSUME} patch currently revokes the whole trust statement instead of
 a single principal.
 
-\textit{Explanation mapping.} Mapping causes to features for RQ3 was
+\textbf{Explanation mapping.} Mapping causes to features for RQ3 was
 defined by the authors. The random baseline shows that the mapping is not
 trivially satisfied, but other mappings could shift the absolute numbers.
 
@@ -801,82 +776,12 @@ enumeration to enterprise-size accounts. All code, data, trained models and
 results are reproducible from a single set of commands and are publicly
 available at \url{https://github.com/alan61503/IAM-XAI}.
 
-\section*{Acknowledgments}
-The authors thank the Department of Computer Science and Engineering,
-CHRIST (Deemed to be University), for its support of this work.
+\section*{Acknowledgment}
+The authors thank Dr.\ Julian Benedit P for guidance throughout this work, and the Department
+of Computer Science and Engineering, CHRIST (Deemed to be University), for its
+support.
 
-%%BIBLIOGRAPHY-START%% (generated by make_bibliography.py -- edit refs.bib, not this block)
-\begin{thebibliography}{99}
-
-\bibitem{arp2022dos} Arp, D., Quiring, E., Pendlebury, F., Warnecke, A., Pierazzi, F., Wressnegger, C., Cavallaro, L., \& Rieck, K. (2022). Dos and Don'ts of Machine Learning in Computer Security. In {\it Proceedings of the 31st USENIX Security Symposium} (pp.\ 3971--3988). USENIX Association.
-
-\bibitem{backes2018zelkova} Backes, J., Bolignano, P., Cook, B., Dodge, C., Gacek, A., Luckow, K., Rungta, N., Tkachuk, O., \& Varming, C. (2018). Semantic-Based Automated Reasoning for {AWS} Access Policies Using {SMT}. In {\it Proceedings of the Formal Methods in Computer Aided Design (FMCAD)} (pp.\ 1--9). \url{https://doi.org/10.23919/FMCAD.2018.8602994}
-
-\bibitem{backes2020stratified} Backes, J., Berrueco, U., Bray, T., Brim, D., Cook, B., Gacek, A., Jhala, R., Luckow, K., McLaughlin, S., Menon, M., Peebles, D., Pugalia, U., Rungta, N., Schlesinger, C., Schodde, A., Tanuku, A., Varming, C., \& Viswanathan, D. (2020). Stratified Abstraction of Access Control Policies. In {\it Computer Aided Verification (CAV 2020)} (Lecture Notes in Computer Science, Vol.\ 12224) (pp.\ 165--176). Springer. \url{https://doi.org/10.1007/978-3-030-53288-8_9}
-
-\bibitem{iamvulnerable} Bishop Fox. (n.d.). {\it {IAM Vulnerable}: An {AWS IAM} Privilege Escalation Playground.} \url{https://github.com/BishopFox/iam-vulnerable}. Accessed: Sep. 2026.
-
-\bibitem{breiman2001rf} Breiman, L. (2001). Random Forests. {\it Machine Learning}, {\it 45}(1), 5--32. \url{https://doi.org/10.1023/A:1010933404324}
-
-\bibitem{capuano2022xai} Capuano, N., Fenza, G., Loia, V., \& Stanzione, C. (2022). Explainable Artificial Intelligence in CyberSecurity: A Survey. {\it IEEE Access}, {\it 10}, 93575--93600. \url{https://doi.org/10.1109/ACCESS.2022.3204171}
-
-\bibitem{chen2016xgboost} Chen, T., \& Guestrin, C. (2016). {XGBoost}: A Scalable Tree Boosting System. In {\it Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD)} (pp.\ 785--794). \url{https://doi.org/10.1145/2939672.2939785}
-
-\bibitem{dietterich1998tests} Dietterich, T. G. (1998). Approximate Statistical Tests for Comparing Supervised Classification Learning Algorithms. {\it Neural Computation}, {\it 10}(7), 1895--1923. \url{https://doi.org/10.1162/089976698300017197}
-
-\bibitem{dunagan2009heatray} Dunagan, J., Zheng, A. X., \& Simon, D. R. (2009). Heat-ray: Combating Identity Snowball Attacks Using Machine Learning, Combinatorial Optimization and Attack Graphs. In {\it Proceedings of the 22nd ACM Symposium on Operating Systems Principles (SOSP)} (pp.\ 305--320). \url{https://doi.org/10.1145/1629575.1629605}
-
-\bibitem{efron1993bootstrap} Efron, B., \& Tibshirani, R. J. (1993). {\it An Introduction to the Bootstrap.} Chapman \& Hall.
-
-\bibitem{first2019cvss31} Forum of Incident Response and Security Teams (FIRST). (2019, June). {\it Common Vulnerability Scoring System v3.1: Specification Document.} \url{https://www.first.org/cvss/v3.1/specification-document}. Accessed: Sep. 2026.
-
-\bibitem{francois2025pignn} Fran{\c{c}}ois, M., Arduin, P.-E., \& Merad, M. (2025). Physics-Informed Graph Neural Networks for Attack Path Prediction. {\it Journal of Cybersecurity and Privacy}, {\it 5}(2), 15. \url{https://doi.org/10.3390/jcp5020015}
-
-\bibitem{gietzen2018rhino} Gietzen, S. (2018). {\it {AWS IAM} Privilege Escalation -- Methods and Mitigation.} Rhino Security Labs blog, \url{https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/}. Accessed: Sep. 2026.
-
-\bibitem{guo2022practical} Guo, M., Li, J., Neumann, A., Neumann, F., \& Nguyen, H. (2022). Practical Fixed-Parameter Algorithms for Defending Active Directory Style Attack Graphs. In {\it Proceedings of the AAAI Conference on Artificial Intelligence} (pp.\ 9360--9367). \url{https://doi.org/10.1609/aaai.v36i9.21167}
-
-\bibitem{guo2023scalable} Guo, M., Ward, M., Neumann, A., Neumann, F., \& Nguyen, H. (2023). Scalable Edge Blocking Algorithms for Defending Active Directory Style Attack Graphs. In {\it Proceedings of the AAAI Conference on Artificial Intelligence} (pp.\ 5649--5656). \url{https://doi.org/10.1609/aaai.v37i5.25701}
-
-\bibitem{hooker2019roar} Hooker, S., Erhan, D., Kindermans, P.-J., \& Kim, B. (2019). A Benchmark for Interpretability Methods in Deep Neural Networks. In {\it Advances in Neural Information Processing Systems 32 (NeurIPS)} (pp.\ 9737--9748).
-
-\bibitem{hu2023iampere} Hu, Y., Wang, W., Khurshid, S., McMillan, K. L., \& Tiwari, M. (2023). Fixing Privilege Escalations in Cloud Access Control with {MaxSAT} and Graph Neural Networks. In {\it Proceedings of the 38th IEEE/ACM International Conference on Automated Software Engineering (ASE)} (pp.\ 104--115). \url{https://doi.org/10.1109/ASE56229.2023.00167}
-
-\bibitem{jha2002two} Jha, S., Sheyner, O., \& Wing, J. M. (2002). Two Formal Analyses of Attack Graphs. In {\it Proceedings of the 15th IEEE Computer Security Foundations Workshop (CSFW)} (pp.\ 49--63). \url{https://doi.org/10.1109/CSFW.2002.1021806}
-
-\bibitem{nist2012sp80030} Joint Task Force Transformation Initiative. (2012, September). {\it Guide for Conducting Risk Assessments} (NIST Special Publication 800-30 Rev. 1). National Institute of Standards and Technology. \url{https://doi.org/10.6028/NIST.SP.800-30r1}
-
-\bibitem{lundberg2017shap} Lundberg, S. M., \& Lee, S.-I. (2017). A Unified Approach to Interpreting Model Predictions. In {\it Advances in Neural Information Processing Systems 30 (NIPS)} (pp.\ 4765--4774).
-
-\bibitem{lundberg2020tree} Lundberg, S. M., Erion, G., Chen, H., DeGrave, A., Prutkin, J. M., Nair, B., Katz, R., Himmelfarb, J., Bansal, N., \& Lee, S.-I. (2020). From Local Explanations to Global Understanding with Explainable {AI} for Trees. {\it Nature Machine Intelligence}, {\it 2}(1), 56--67. \url{https://doi.org/10.1038/s42256-019-0138-9}
-
-\bibitem{mcnemar1947} McNemar, Q. (1947). Note on the Sampling Error of the Difference Between Correlated Proportions or Percentages. {\it Psychometrika}, {\it 12}(2), 153--157. \url{https://doi.org/10.1007/BF02295996}
-
-\bibitem{pmapper} NCC Group, \& Steringer, E. (2019). {\it Principal Mapper ({PMapper}): A Tool for Quickly Evaluating {IAM} Permissions in {AWS}.} \url{https://github.com/nccgroup/PMapper}. Accessed: Sep. 2026.
-
-\bibitem{ou2005mulval} Ou, X., Govindavajhala, S., \& Appel, A. W. (2005). {MulVAL}: A Logic-Based Network Security Analyzer. In {\it Proceedings of the 14th USENIX Security Symposium} (pp.\ 113--128). USENIX Association.
-
-\bibitem{ou2006scalable} Ou, X., Boyer, W. F., \& McQueen, M. A. (2006). A Scalable Approach to Attack Graph Generation. In {\it Proceedings of the 13th ACM Conference on Computer and Communications Security (CCS)} (pp.\ 336--345). \url{https://doi.org/10.1145/1180405.1180446}
-
-\bibitem{pedregosa2011sklearn} Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., Vanderplas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M., \& Duchesnay, {\'E}. (2011). Scikit-learn: Machine Learning in {P}ython. {\it Journal of Machine Learning Research}, {\it 12}, 2825--2830.
-
-\bibitem{cloudgoat} Rhino Security Labs. (2019). {\it {CloudGoat}: ``Vulnerable by Design'' {AWS} Deployment Tool.} \url{https://github.com/RhinoSecurityLabs/cloudgoat}. Accessed: Sep. 2026.
-
-\bibitem{ribeiro2016lime} Ribeiro, M. T., Singh, S., \& Guestrin, C. (2016). ``{Why} Should {I} Trust You?'': Explaining the Predictions of Any Classifier. In {\it Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD)} (pp.\ 1135--1144). \url{https://doi.org/10.1145/2939672.2939778}
-
-\bibitem{cloudsplaining} Salesforce. (n.d.). {\it Cloudsplaining: {AWS IAM} Security Assessment Tool That Identifies Violations of Least Privilege.} \url{https://github.com/salesforce/cloudsplaining}. Accessed: Sep. 2026.
-
-\bibitem{samek2017evaluating} Samek, W., Binder, A., Montavon, G., Lapuschkin, S., \& M{\"u}ller, K.-R. (2017). Evaluating the Visualization of What a Deep Neural Network Has Learned. {\it IEEE Transactions on Neural Networks and Learning Systems}, {\it 28}(11), 2660--2673. \url{https://doi.org/10.1109/TNNLS.2016.2599820}
-
-\bibitem{shevrin2023detecting} Shevrin, I., \& Margalit, O. (2023). Detecting Multi-Step {IAM} Attacks in {AWS} Environments via Model Checking. In {\it Proceedings of the 32nd USENIX Security Symposium} (pp.\ 6025--6042). USENIX Association.
-
-\bibitem{sheyner2002automated} Sheyner, O., Haines, J., Jha, S., Lippmann, R., \& Wing, J. M. (2002). Automated Generation and Analysis of Attack Graphs. In {\it Proceedings of the IEEE Symposium on Security and Privacy (S\&P)} (pp.\ 273--284). \url{https://doi.org/10.1109/SECPRI.2002.1004377}
-
-\bibitem{bloodhound} SpecterOps. (n.d.). {\it {BloodHound}: Graph-Based Analysis of Attack Paths in Identity and Access Management Systems.} \url{https://github.com/SpecterOps/BloodHound}. Accessed: Sep. 2026.
-
-\bibitem{wang2006minimum} Wang, L., Noel, S., \& Jajodia, S. (2006). Minimum-Cost Network Hardening Using Attack Graphs. {\it Computer Communications}, {\it 29}(18), 3812--3824. \url{https://doi.org/10.1016/j.comcom.2006.06.018}
-
-\end{thebibliography}
-%%BIBLIOGRAPHY-END%%
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
 
 \end{document}

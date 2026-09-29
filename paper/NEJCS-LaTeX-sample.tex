@@ -1,0 +1,121 @@
+% LaTeX sample source for Northeast Journal of Complex Systems (NEJCS)
+% Prepared by Hiroki Sayama on 12/29/2020
+
+\documentclass[12pt]{article}
+\usepackage[margin=1.5in]{geometry}
+
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage[font=small]{caption}
+
+\usepackage{titlesec}
+\titleformat{\section}
+  {\normalfont\normalsize}
+  {\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\small}
+  {\thesubsection}{1em}{}
+
+\title{\bf \large Paper Title}
+\author{\normalsize Jane Doe$^{1*}$ and John Doe$^2$\\
+\small$^1$ First Author's Affiliation, City, Country\\
+\small$^2$ Second Author's Affiliation, City, Country\\
+\small$^*$ corresponding.author@email.com}
+
+\date{}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\maketitle
+
+\thispagestyle{empty}
+
+\begin{center}Abstract\end{center}
+This is the paper formatting template that also provides formatting instructions for papers published in the Northeast Journal of Complex Systems (NEJCS). Here is the space for the abstract. Please do not use symbols, special characters, footnotes, or math in Paper Title or Abstract. 
+
+\section{Format Requirements {\it (section heading: font size=12pt, capitalize initial letters for each word)}}
+
+Page size is the US Letter size (8.5 $\times$ 11 inches). All the main text and the abstract should be in a single-column layout and justified to both left and right. Please do not insert page numbers, headers, or footers.
+
+\subsection{Font requirements {\it (subsection heading: font size=11pt, only capitalize first words’ initial letters)}}
+
+Fonts should be Times or the closest comparable fonts available. The font size for the paper title, the authors’ names and the main body is 12pt, while the font size for affiliations and figure/table captions is 10pt. Font size should be different for different levels of section headings. {\it Emphasized text should be italicized.}
+
+\subsection{Margin, space and indent}
+
+All margins (left, right, top and bottom) should be 1.5 inches (3.8 cm), including your tables and figures. Please single space your text. Please leave space above and below section headings, figures and tables.
+
+Please indent all paragraphs except those following a section heading. An indent should be at least 2 em-spaces.
+
+\subsection{Footnotes}
+
+Footnotes\footnote{Font for footnotes should be Times or closest comparable font available.}
+should appear at the bottom of the page on which they are referenced rather than at the end of the paper. Footnotes should be in 10pt.
+
+\section{Tables and Figures}
+
+\subsection{Example of a table}
+
+Table \ref{tab1} shows an example of a table.
+
+\begin{table}[h]
+\caption{Table Type Style}
+\centering
+\begin{tabular}{ccc}
+\hline
+Table Head & Title & Title \\
+\hline
+Label & text & text \\
+Label & text & text \\
+\hline
+\end{tabular}
+\label{tab1}
+\end{table}
+
+\subsection{Example of a figure}
+
+Figure \ref{fig1} is an example of a figure.
+
+\begin{figure}[h]
+\centering
+\fbox{\parbox[c][2.5in][c]{4in}{\centering Figure\\Example}}
+\caption{An example of a figure.}
+\label{fig1}
+\end{figure}
+
+\section{Mathematics}
+
+\subsection{Equations}
+
+Here is an example of equations:
+\begin{equation}
+a+b = y \label{eq1}
+\end{equation}
+Note that equations should be numbered sequentially, as shown in Eq.~(\ref{eq1}).
+
+\subsection{Mathematical expressions}
+
+Short expressions such as $\pi r^2$ should be typed inline. Longer expressions should appear as display math, such as
+\[
+a_0 + \sum_{n=1}^\infty \left( 
+a_n \cos{\frac{n \pi x}{L}} + b_n \sin{\frac{n \pi x}{L}}
+\right) .
+\]
+
+\section{Language and Grammars}
+
+All submissions must be in English. Except for common foreign words and phrases, the use of foreign words and phrases should be avoided.
+
+Authors should use proper, standard English grammars. The writing guide by Strunk \& White \cite{SW99} is the ``standard'' guide.
+
+For more details, please see the ``Final Manuscript Preparation Guidelines'' on the journal's website.
+
+\begin{thebibliography}{9}
+
+\bibitem{SW99} Strunk Jr., W., \& White, E. B. (1999). {\it The Elements of Style, 4th Edition.} Pearson.
+
+\end{thebibliography}
+
+\end{document}
