@@ -4,8 +4,13 @@ Run after ``models.train``, ``explainability.faithfulness``,
 ``choke_point.evaluate`` and ``experiments.sensitivity``::
 
     python -m experiments.figures
+    python -m experiments.figures --paper --output-dir paper/figures
+
+``--paper`` drops the headline title (the LaTeX caption carries it) and uses a
+white background for print.
 """
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -79,9 +84,16 @@ def _legend_below(ax, ncol: int = 2) -> None:
 
 
 def _save(fig, name: str) -> Path:
+    if PAPER_MODE:
+        for ax in fig.axes:
+            ax.set_facecolor("white")
+        titled = [ax for ax in fig.axes if any(ax.get_title(loc=loc) for loc in ("left", "center", "right"))]
+        if len(titled) == 1:  # a single headline title; subplot titles are kept
+            for loc in ("left", "center", "right"):
+                titled[0].set_title("", loc=loc)
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
     path = FIGURES_DIR / name
-    fig.savefig(path)
+    fig.savefig(path, facecolor="white" if PAPER_MODE else SURFACE)
     plt.close(fig)
     return path
 
@@ -240,7 +252,22 @@ def sensitivity() -> Path:
     return _save(fig, "fig6_sensitivity.png")
 
 
+PAPER_MODE = False
+
+
+def build_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Publication figures from evaluation/*.json.")
+    parser.add_argument("--paper", action="store_true", help="No headline titles, white background (for LaTeX captions).")
+    parser.add_argument("--output-dir", type=Path, default=None, help=f"Output directory (default: {FIGURES_DIR}).")
+    return parser
+
+
 def main(args: List[str] = None) -> int:
+    global FIGURES_DIR, PAPER_MODE
+    parsed = build_arg_parser().parse_args(args)
+    PAPER_MODE = parsed.paper
+    if parsed.output_dir is not None:
+        FIGURES_DIR = parsed.output_dir
     for build in (model_comparison, confusion, generalization, faithfulness, choke_points, sensitivity):
         print(f"[SUCCESS] {build()}")
     return 0

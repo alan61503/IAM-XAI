@@ -1,0 +1,429 @@
+% refs.bib -- IAM-XAI (IEEEtran). Every entry below was checked against the
+% publisher page, DBLP, ACM DL, IEEE Xplore, USENIX, or the project's own page
+% (Sep. 2026). Web sources are @misc with an access note.
+
+% ---------------------------------------------------------------------------
+% 1. Attack graphs, network hardening, minimal cuts
+% ---------------------------------------------------------------------------
+
+@inproceedings{sheyner2002automated,
+  author    = {Sheyner, Oleg and Haines, Joshua and Jha, Somesh and Lippmann, Richard and Wing, Jeannette M.},
+  title     = {Automated Generation and Analysis of Attack Graphs},
+  booktitle = {Proc. IEEE Symposium on Security and Privacy (S\&P)},
+  address   = {Oakland, CA, USA},
+  pages     = {273--284},
+  year      = {2002},
+  doi       = {10.1109/SECPRI.2002.1004377}
+}
+
+@inproceedings{jha2002two,
+  author    = {Jha, Somesh and Sheyner, Oleg and Wing, Jeannette M.},
+  title     = {Two Formal Analyses of Attack Graphs},
+  booktitle = {Proc. 15th IEEE Computer Security Foundations Workshop (CSFW)},
+  pages     = {49--63},
+  year      = {2002},
+  doi       = {10.1109/CSFW.2002.1021806}
+}
+
+@inproceedings{ammann2002scalable,
+  author    = {Ammann, Paul and Wijesekera, Duminda and Kaushik, Saket},
+  title     = {Scalable, Graph-Based Network Vulnerability Analysis},
+  booktitle = {Proc. 9th ACM Conference on Computer and Communications Security (CCS)},
+  address   = {Washington, DC, USA},
+  pages     = {217--224},
+  year      = {2002},
+  doi       = {10.1145/586110.586140}
+}
+
+@inproceedings{ou2005mulval,
+  author    = {Ou, Xinming and Govindavajhala, Sudhakar and Appel, Andrew W.},
+  title     = {{MulVAL}: A Logic-Based Network Security Analyzer},
+  booktitle = {Proc. 14th USENIX Security Symposium},
+  address   = {Baltimore, MD, USA},
+  publisher = {USENIX Association},
+  pages     = {113--128},
+  year      = {2005}
+}
+
+@inproceedings{ou2006scalable,
+  author    = {Ou, Xinming and Boyer, Wayne F. and McQueen, Miles A.},
+  title     = {A Scalable Approach to Attack Graph Generation},
+  booktitle = {Proc. 13th ACM Conference on Computer and Communications Security (CCS)},
+  address   = {Alexandria, VA, USA},
+  pages     = {336--345},
+  year      = {2006},
+  doi       = {10.1145/1180405.1180446}
+}
+
+@inproceedings{noel2004managing,
+  author    = {Noel, Steven and Jajodia, Sushil},
+  title     = {Managing Attack Graph Complexity Through Visual Hierarchical Aggregation},
+  booktitle = {Proc. ACM Workshop on Visualization and Data Mining for Computer Security (VizSEC/DMSEC)},
+  pages     = {109--118},
+  year      = {2004},
+  doi       = {10.1145/1029208.1029225}
+}
+
+@article{wang2006minimum,
+  author    = {Wang, Lingyu and Noel, Steven and Jajodia, Sushil},
+  title     = {Minimum-Cost Network Hardening Using Attack Graphs},
+  journal   = {Computer Communications},
+  volume    = {29},
+  number    = {18},
+  pages     = {3812--3824},
+  year      = {2006},
+  doi       = {10.1016/j.comcom.2006.06.018}
+}
+
+% ---------------------------------------------------------------------------
+% 2. Cloud IAM security: practitioner sources and tools
+% ---------------------------------------------------------------------------
+
+@misc{gietzen2018rhino,
+  author       = {Gietzen, Spencer},
+  title        = {{AWS IAM} Privilege Escalation -- Methods and Mitigation},
+  howpublished = {Rhino Security Labs blog, \url{https://rhinosecuritylabs.com/aws/aws-privilege-escalation-methods-mitigation/}},
+  year         = {2018},
+  note         = {Accessed: Sep. 2026}
+}
+
+@misc{cloudgoat,
+  author       = {{Rhino Security Labs}},
+  title        = {{CloudGoat}: ``Vulnerable by Design'' {AWS} Deployment Tool},
+  howpublished = {\url{https://github.com/RhinoSecurityLabs/cloudgoat}},
+  year         = {2019},
+  note         = {Accessed: Sep. 2026}
+}
+
+@misc{iamvulnerable,
+  author       = {{Bishop Fox}},
+  title        = {{IAM Vulnerable}: An {AWS IAM} Privilege Escalation Playground},
+  howpublished = {\url{https://github.com/BishopFox/iam-vulnerable}},
+  note         = {Accessed: Sep. 2026}
+}
+
+@misc{pmapper,
+  author       = {{NCC Group} and Steringer, Erik},
+  title        = {Principal Mapper ({PMapper}): A Tool for Quickly Evaluating {IAM} Permissions in {AWS}},
+  howpublished = {\url{https://github.com/nccgroup/PMapper}},
+  year         = {2019},
+  note         = {Accessed: Sep. 2026}
+}
+
+@misc{cloudsplaining,
+  author       = {{Salesforce}},
+  title        = {Cloudsplaining: {AWS IAM} Security Assessment Tool That Identifies Violations of Least Privilege},
+  howpublished = {\url{https://github.com/salesforce/cloudsplaining}},
+  note         = {Accessed: Sep. 2026}
+}
+
+% ---------------------------------------------------------------------------
+% 2b. Cloud IAM security: peer-reviewed / research
+% ---------------------------------------------------------------------------
+
+@inproceedings{backes2018zelkova,
+  author    = {Backes, John and Bolignano, Pauline and Cook, Byron and Dodge, Catherine and Gacek, Andrew and Luckow, Kasper and Rungta, Neha and Tkachuk, Oksana and Varming, Carsten},
+  title     = {Semantic-Based Automated Reasoning for {AWS} Access Policies Using {SMT}},
+  booktitle = {Proc. Formal Methods in Computer Aided Design (FMCAD)},
+  address   = {Austin, TX, USA},
+  pages     = {1--9},
+  year      = {2018},
+  doi       = {10.23919/FMCAD.2018.8602994}
+}
+
+@inproceedings{backes2020stratified,
+  author    = {Backes, John and Berrueco, Ulises and Bray, Tyler and Brim, Daniel and Cook, Byron and Gacek, Andrew and Jhala, Ranjit and Luckow, Kasper and McLaughlin, Sean and Menon, Madhav and Peebles, Daniel and Pugalia, Ujjwal and Rungta, Neha and Schlesinger, Cole and Schodde, Adam and Tanuku, Anvesh and Varming, Carsten and Viswanathan, Deepa},
+  title     = {Stratified Abstraction of Access Control Policies},
+  booktitle = {Computer Aided Verification (CAV 2020)},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {12224},
+  publisher = {Springer},
+  pages     = {165--176},
+  year      = {2020},
+  doi       = {10.1007/978-3-030-53288-8_9}
+}
+
+@inproceedings{bouchet2020bpa,
+  author    = {Bouchet, Malik and Cook, Byron and Cutler, Bryant and Druzkina, Anna and Gacek, Andrew and Hadarean, Liana and Jhala, Ranjit and Marshall, Brad and Peebles, Daniel and Rungta, Neha and Schlesinger, Cole and Stephens, Chriss and Varming, Carsten and Warfield, Andy},
+  title     = {Block Public Access: Trust Safety Verification of Access Control Policies},
+  booktitle = {Proc. 28th ACM Joint European Software Engineering Conference and Symposium on the Foundations of Software Engineering (ESEC/FSE)},
+  pages     = {281--291},
+  year      = {2020},
+  doi       = {10.1145/3368089.3409728}
+}
+
+@inproceedings{shevrin2023detecting,
+  author    = {Shevrin, Ilia and Margalit, Oded},
+  title     = {Detecting Multi-Step {IAM} Attacks in {AWS} Environments via Model Checking},
+  booktitle = {Proc. 32nd USENIX Security Symposium},
+  address   = {Anaheim, CA, USA},
+  publisher = {USENIX Association},
+  pages     = {6025--6042},
+  year      = {2023}
+}
+
+@inproceedings{hu2023iampere,
+  author    = {Hu, Yang and Wang, Wenxi and Khurshid, Sarfraz and McMillan, Kenneth L. and Tiwari, Mohit},
+  title     = {Fixing Privilege Escalations in Cloud Access Control with {MaxSAT} and Graph Neural Networks},
+  booktitle = {Proc. 38th IEEE/ACM International Conference on Automated Software Engineering (ASE)},
+  pages     = {104--115},
+  year      = {2023},
+  doi       = {10.1109/ASE56229.2023.00167}
+}
+
+% arXiv preprint (no peer-reviewed venue found as of Sep. 2026; title has
+% changed across versions -- cite the version actually read).
+@misc{hu2023tac,
+  author        = {Hu, Yang and Wang, Wenxi and Khurshid, Sarfraz and Tiwari, Mohit},
+  title         = {{TAC}: Hybrid {IAM} Privilege Escalation Detection},
+  howpublished  = {arXiv preprint arXiv:2304.14540},
+  year          = {2023},
+  eprint        = {2304.14540},
+  archivePrefix = {arXiv},
+  note          = {v9, Jul. 2026}
+}
+
+% ---------------------------------------------------------------------------
+% 3. Identity / Active Directory attack graphs
+% ---------------------------------------------------------------------------
+
+@misc{bloodhound,
+  author       = {{SpecterOps}},
+  title        = {{BloodHound}: Graph-Based Analysis of Attack Paths in Identity and Access Management Systems},
+  howpublished = {\url{https://github.com/SpecterOps/BloodHound}},
+  note         = {Accessed: Sep. 2026}
+}
+
+@inproceedings{dunagan2009heatray,
+  author    = {Dunagan, John and Zheng, Alice X. and Simon, Daniel R.},
+  title     = {Heat-ray: Combating Identity Snowball Attacks Using Machine Learning, Combinatorial Optimization and Attack Graphs},
+  booktitle = {Proc. 22nd ACM Symposium on Operating Systems Principles (SOSP)},
+  address   = {Big Sky, MT, USA},
+  pages     = {305--320},
+  year      = {2009},
+  doi       = {10.1145/1629575.1629605}
+}
+
+@inproceedings{guo2022practical,
+  author    = {Guo, Mingyu and Li, Jialiang and Neumann, Aneta and Neumann, Frank and Nguyen, Hung},
+  title     = {Practical Fixed-Parameter Algorithms for Defending Active Directory Style Attack Graphs},
+  booktitle = {Proc. AAAI Conference on Artificial Intelligence},
+  volume    = {36},
+  number    = {9},
+  pages     = {9360--9367},
+  year      = {2022},
+  doi       = {10.1609/aaai.v36i9.21167}
+}
+
+@inproceedings{guo2023scalable,
+  author    = {Guo, Mingyu and Ward, Max and Neumann, Aneta and Neumann, Frank and Nguyen, Hung},
+  title     = {Scalable Edge Blocking Algorithms for Defending Active Directory Style Attack Graphs},
+  booktitle = {Proc. AAAI Conference on Artificial Intelligence},
+  volume    = {37},
+  number    = {5},
+  pages     = {5649--5656},
+  year      = {2023},
+  doi       = {10.1609/aaai.v37i5.25701}
+}
+
+% ---------------------------------------------------------------------------
+% 4. Explainable AI, XAI evaluation, ML-in-security methodology
+% ---------------------------------------------------------------------------
+
+@inproceedings{lundberg2017shap,
+  author    = {Lundberg, Scott M. and Lee, Su-In},
+  title     = {A Unified Approach to Interpreting Model Predictions},
+  booktitle = {Advances in Neural Information Processing Systems 30 (NIPS)},
+  pages     = {4765--4774},
+  year      = {2017}
+}
+
+@article{lundberg2020tree,
+  author    = {Lundberg, Scott M. and Erion, Gabriel and Chen, Hugh and DeGrave, Alex and Prutkin, Jordan M. and Nair, Bala and Katz, Ronit and Himmelfarb, Jonathan and Bansal, Nisha and Lee, Su-In},
+  title     = {From Local Explanations to Global Understanding with Explainable {AI} for Trees},
+  journal   = {Nature Machine Intelligence},
+  volume    = {2},
+  number    = {1},
+  pages     = {56--67},
+  year      = {2020},
+  doi       = {10.1038/s42256-019-0138-9}
+}
+
+@inproceedings{ribeiro2016lime,
+  author    = {Ribeiro, Marco Tulio and Singh, Sameer and Guestrin, Carlos},
+  title     = {``{Why} Should {I} Trust You?'': Explaining the Predictions of Any Classifier},
+  booktitle = {Proc. 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD)},
+  pages     = {1135--1144},
+  year      = {2016},
+  doi       = {10.1145/2939672.2939778}
+}
+
+@article{capuano2022xai,
+  author    = {Capuano, Nicola and Fenza, Giuseppe and Loia, Vincenzo and Stanzione, Claudio},
+  title     = {Explainable Artificial Intelligence in CyberSecurity: A Survey},
+  journal   = {IEEE Access},
+  volume    = {10},
+  pages     = {93575--93600},
+  year      = {2022},
+  doi       = {10.1109/ACCESS.2022.3204171}
+}
+
+@article{rjoub2023xai,
+  author    = {Rjoub, Gaith and Bentahar, Jamal and Abdel Wahab, Omar and Mizouni, Rabeb and Song, Alyssa and Cohen, Robin and Otrok, Hadi and Mourad, Azzam},
+  title     = {A Survey on Explainable Artificial Intelligence for Cybersecurity},
+  journal   = {IEEE Transactions on Network and Service Management},
+  volume    = {20},
+  number    = {4},
+  pages     = {5115--5140},
+  year      = {2023},
+  doi       = {10.1109/TNSM.2023.3282740}
+}
+
+@article{samek2017evaluating,
+  author    = {Samek, Wojciech and Binder, Alexander and Montavon, Gr{\'e}goire and Lapuschkin, Sebastian and M{\"u}ller, Klaus-Robert},
+  title     = {Evaluating the Visualization of What a Deep Neural Network Has Learned},
+  journal   = {IEEE Transactions on Neural Networks and Learning Systems},
+  volume    = {28},
+  number    = {11},
+  pages     = {2660--2673},
+  year      = {2017},
+  doi       = {10.1109/TNNLS.2016.2599820}
+}
+
+@inproceedings{hooker2019roar,
+  author    = {Hooker, Sara and Erhan, Dumitru and Kindermans, Pieter-Jan and Kim, Been},
+  title     = {A Benchmark for Interpretability Methods in Deep Neural Networks},
+  booktitle = {Advances in Neural Information Processing Systems 32 (NeurIPS)},
+  pages     = {9737--9748},
+  year      = {2019}
+}
+
+@inproceedings{arp2022dos,
+  author    = {Arp, Daniel and Quiring, Erwin and Pendlebury, Feargus and Warnecke, Alexander and Pierazzi, Fabio and Wressnegger, Christian and Cavallaro, Lorenzo and Rieck, Konrad},
+  title     = {Dos and Don'ts of Machine Learning in Computer Security},
+  booktitle = {Proc. 31st USENIX Security Symposium},
+  address   = {Boston, MA, USA},
+  publisher = {USENIX Association},
+  pages     = {3971--3988},
+  year      = {2022}
+}
+
+% ---------------------------------------------------------------------------
+% 5. Machine learning and statistics
+% ---------------------------------------------------------------------------
+
+@article{breiman2001rf,
+  author    = {Breiman, Leo},
+  title     = {Random Forests},
+  journal   = {Machine Learning},
+  volume    = {45},
+  number    = {1},
+  pages     = {5--32},
+  year      = {2001},
+  doi       = {10.1023/A:1010933404324}
+}
+
+@inproceedings{chen2016xgboost,
+  author    = {Chen, Tianqi and Guestrin, Carlos},
+  title     = {{XGBoost}: A Scalable Tree Boosting System},
+  booktitle = {Proc. 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD)},
+  pages     = {785--794},
+  year      = {2016},
+  doi       = {10.1145/2939672.2939785}
+}
+
+@article{pedregosa2011sklearn,
+  author    = {Pedregosa, Fabian and Varoquaux, Ga{\"e}l and Gramfort, Alexandre and Michel, Vincent and Thirion, Bertrand and Grisel, Olivier and Blondel, Mathieu and Prettenhofer, Peter and Weiss, Ron and Dubourg, Vincent and Vanderplas, Jake and Passos, Alexandre and Cournapeau, David and Brucher, Matthieu and Perrot, Matthieu and Duchesnay, {\'E}douard},
+  title     = {Scikit-learn: Machine Learning in {P}ython},
+  journal   = {Journal of Machine Learning Research},
+  volume    = {12},
+  pages     = {2825--2830},
+  year      = {2011}
+}
+
+@book{efron1993bootstrap,
+  author    = {Efron, Bradley and Tibshirani, Robert J.},
+  title     = {An Introduction to the Bootstrap},
+  publisher = {Chapman \& Hall},
+  address   = {New York, NY, USA},
+  year      = {1993}
+}
+
+@article{mcnemar1947,
+  author    = {McNemar, Quinn},
+  title     = {Note on the Sampling Error of the Difference Between Correlated Proportions or Percentages},
+  journal   = {Psychometrika},
+  volume    = {12},
+  number    = {2},
+  pages     = {153--157},
+  year      = {1947},
+  doi       = {10.1007/BF02295996}
+}
+
+@article{dietterich1998tests,
+  author    = {Dietterich, Thomas G.},
+  title     = {Approximate Statistical Tests for Comparing Supervised Classification Learning Algorithms},
+  journal   = {Neural Computation},
+  volume    = {10},
+  number    = {7},
+  pages     = {1895--1923},
+  year      = {1998},
+  doi       = {10.1162/089976698300017197}
+}
+
+% ---------------------------------------------------------------------------
+% 6. Risk scoring and industry context
+% ---------------------------------------------------------------------------
+
+@misc{first2019cvss31,
+  author       = {{Forum of Incident Response and Security Teams (FIRST)}},
+  title        = {Common Vulnerability Scoring System v3.1: Specification Document},
+  howpublished = {\url{https://www.first.org/cvss/v3.1/specification-document}},
+  month        = jun,
+  year         = {2019},
+  note         = {Accessed: Sep. 2026}
+}
+
+@techreport{nist2012sp80030,
+  author      = {{Joint Task Force Transformation Initiative}},
+  title       = {Guide for Conducting Risk Assessments},
+  institution = {National Institute of Standards and Technology},
+  type        = {NIST Special Publication},
+  number      = {800-30 Rev. 1},
+  month       = sep,
+  year        = {2012},
+  doi         = {10.6028/NIST.SP.800-30r1}
+}
+
+@misc{verizon2024dbir,
+  author       = {{Verizon Business}},
+  title        = {2024 Data Breach Investigations Report},
+  howpublished = {\url{https://www.verizon.com/business/en-au/resources/reports/2024/dbir/2024-dbir-data-breach-investigations-report.pdf}},
+  year         = {2024},
+  note         = {Accessed: Sep. 2026}
+}
+
+% ---------------------------------------------------------------------------
+% 7. ML on attack graphs / attack-path prediction
+% ---------------------------------------------------------------------------
+
+@article{francois2025pignn,
+  author    = {Fran{\c{c}}ois, Marin and Arduin, Pierre-Emmanuel and Merad, Myriam},
+  title     = {Physics-Informed Graph Neural Networks for Attack Path Prediction},
+  journal   = {Journal of Cybersecurity and Privacy},
+  volume    = {5},
+  number    = {2},
+  pages     = {15},
+  year      = {2025},
+  doi       = {10.3390/jcp5020015}
+}
+
+@article{rose2022ideres,
+  author    = {Rose, J. R. and Swann, M. and Grammatikakis, K. P. and Koufos, I. and Bendiab, G. and Shiaeles, S. and Kolokotronis, N.},
+  title     = {{IDERES}: Intrusion Detection and Response System Using Machine Learning and Attack Graphs},
+  journal   = {Journal of Systems Architecture},
+  volume    = {131},
+  pages     = {102722},
+  year      = {2022},
+  doi       = {10.1016/j.sysarc.2022.102722}
+}
